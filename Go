@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e -o pipefail
+
+Main ()
+{
+	local sFolder0="$(dirname "${0}")"
+	printf "sFolder0 %s.\n" "\"${sFolder0}\""
+	
+	if ((1)); then
+		perl -I "${sFolder0}/" "${sFolder0}/Util_t.pl"
+	fi
+}
+
+Main "$@"
