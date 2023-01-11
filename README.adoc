@@ -1,0 +1,8 @@
+= [2022-12-27] PerlLib_02h
+:docinfo: shared
+:date:    2022-12-27
+:toc:     macro
+
+== README
+
+Small library of reusable Perl functions etc.
