@@ -4,22 +4,42 @@ use strict; use warnings;
 use Util;
 
 {
-	for (my $n = 0; $n < 4; ++$n)
+	for (my $bChompLines = 0; $bChompLines < 2; ++$bChompLines)
 	{
-		my $sx = '';
-		my $sy = '';
+		for (my $n = 0; $n < 4; ++$n)
 		{
-			for (my $i = 0; $i < $n; ++$i)
+			my $sx = '';
+			my $sy = '';
 			{
-				my $sLine = 'xxx';
-				$sx .= "\t${sLine}\n"   . "\t\n";
-				$sy .= "\t\t${sLine}\n" . "\n";
+				for (my $i = 0; $i < $n; ++$i)
+				{
+					my $sLine = 'xxx';
+					$sx .= "\t${sLine}\n"   . "\t\n";
+					$sy .= "\t\t${sLine}\n" . (! $bChompLines || $i + 1 < $n ? "\n" : '');
+				}
+				
+				for (my $i = 0; $i < $n; ++$i)
+				{
+					$sx .= "\t\n";
+					if (! $bChompLines)
+						{ $sy .= "\n"; }
+				}
+			}
+			
+			#printf ("sx:\n{\n%s}\n\n", $sx);
+			my $sz = Indent ($sx, 1, $bChompLines);
+			
+			# [2023-01-16]
+			#Azzert ($sz eq $sy);
+			if ($sz ne $sy)
+			{
+				printf ("\$bChompLines %u, \$n %u. \$sz ne \$sy.\n", $bChompLines, $n);
+				printf ("\$sx (not indented) with no newline:\n{\n%s}\n\n", $sx);
+				printf ("\$sy (not indented) with no newline:\n{\n%s}\n\n", $sy);
+				printf ("\$sz (not indented) with no newline:\n{\n%s}\n\n", $sz);
+				Azzert (0);
 			}
 		}
-		
-		#printf ("sx:\n{\n%s}\n\n", $sx);
-		my $sz = Indent ($sx);
-		Azzert ($sz eq $sy);
 	}
 }
 

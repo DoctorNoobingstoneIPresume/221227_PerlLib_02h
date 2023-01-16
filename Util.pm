@@ -29,15 +29,17 @@ sub IndentPrefix
 
 sub Indent
 {
-	my $sx = @_ ? shift : Azzert ();
-	my $n  = @_ ? shift : 1;
+	my $sx          = @_ ? shift : Azzert ();
+	my $n           = @_ ? shift : 1;
+	my $bChompLines = @_ ? shift : 1;
 	
 	my $sy = '';
 	{
 		my $sLinePrefix = IndentPrefix ($n);
 		
-		my $sBuffered = '';
-		my $bAnything = 0;
+		my $nEmptyLines = 0;
+		my $sBuffered   = '';
+		my $bAnything   = 0;
 		
 		my $nc = length ($sx);
 		for (my $ic = 0; $ic <= $nc; ++$ic)
@@ -50,8 +52,18 @@ sub Indent
 			
 			if ($cod == 0xA || ! $cod)
 			{
-				if ($cod)
-					{ $sy .= $c; }
+				if ($cod == 0xA)
+				{
+					if (! $bChompLines)
+						{ $sy .= $c; }
+					else
+					{
+						if ($bAnything)
+							{ $sy .= $c; $nEmptyLines = 0; }
+						else
+							{ ++$nEmptyLines; }
+					}
+				}
 				
 				$sBuffered = '';
 				$bAnything = 0;
@@ -66,9 +78,10 @@ sub Indent
 					{ $sy .= $c; }
 				else
 				{
-					$sy .= $sLinePrefix . $sBuffered . $c;
-					$sBuffered = '';
-					$bAnything = 1;
+					$sy .= "\n" x $nEmptyLines . $sLinePrefix . $sBuffered . $c;
+					$nEmptyLines = 0;
+					$sBuffered   = '';
+					$bAnything   = 1;
 				}
 			}
 		}
@@ -79,9 +92,10 @@ sub Indent
 
 sub IndentWithTitle
 {
-	my $sx     = @_ ? shift : Azzert ();
-	my $sTitle = @_ ? shift : 'Untitled';
-	my $n      = @_ ? shift : 1;
+	my $sx          = @_ ? shift : Azzert ();
+	my $sTitle      = @_ ? shift : 'Untitled';
+	my $n           = @_ ? shift : 1;
+	my $bChompLines = @_ ? shift : 1;
 	
 	return sprintf ("%s\n{\n%s}\n\n", $sTitle, Indent ($sx, $n));
 }
