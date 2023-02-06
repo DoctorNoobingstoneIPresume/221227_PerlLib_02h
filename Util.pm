@@ -103,6 +103,7 @@ sub IndentWithTitle
 sub ArrayToString
 {
 	my $ras = @_ ? shift : Azzert ();
+		{ Azzert (ref $ras eq 'ARRAY'); }
 	
 	my $sRet = '';
 	{
@@ -118,6 +119,7 @@ sub ArrayToString
 sub HashMapKeysToString
 {
 	my $rhks = @_ ? shift : Azzert ();
+		{ Azzert (ref $rhks eq 'HASH'); }
 	
 	my $sRet = '';
 	{
@@ -133,6 +135,7 @@ sub HashMapKeysToString
 sub IndexOfStringInArray
 {
 	my $rasHaystack = @_ ? shift : Azzert ();
+		{ Azzert (ref $rasHaystack eq 'ARRAY'); }
 	my $sNeedle     = @_ ? shift : Azzert ();
 	
 	my $i = 0;
