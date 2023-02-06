@@ -97,7 +97,7 @@ sub IndentWithTitle
 	my $n           = @_ ? shift : 1;
 	my $bChompLines = @_ ? shift : 1;
 	
-	return sprintf ("%s\n{\n%s}\n\n", $sTitle, Indent ($sx, $n));
+	return sprintf ("%s\n{\n%s}\n\n", $sTitle, Indent ($sx, $n, $bChompLines));
 }
 
 sub ArrayToString
