@@ -2,7 +2,11 @@
 
 package Util;
 use Exporter qw (import);
-our @EXPORT = qw (Azzert IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray);
+our @EXPORT = qw
+(
+	Azzert Azzert_eq Azzert_ne
+	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
+);
 
 sub Azzert
 {
@@ -17,6 +21,9 @@ sub Azzert
 	
 	return $bCondition;
 }
+
+sub Azzert_eq { my $s0 = @_ ? shift : Azzert (); my $s1 = @_ ? shift : Azzert (); Azzert ($s0 eq $s1, "Azzert_eq has failed: '${s0}' vs '${s1}'."); }
+sub Azzert_ne { my $s0 = @_ ? shift : Azzert (); my $s1 = @_ ? shift : Azzert (); Azzert ($s0 ne $s1, "Azzert_ne has failed: '${s0}' vs '${s1}'."); }
 
 sub IndentPrefix
 {
