@@ -98,4 +98,11 @@ use Util;
 	}
 }
 
+{
+	my %h = ('aaa' => 0x61, 'bbb' => 0x62);
+	Azzert (           HashElementOr (\%h, 'aaa', 0xFF) == 0x61);
+	Azzert (           HashElementOr (\%h, 'ccc', 0xFF) == 0xFF);
+	Azzert (! defined (HashElementOr (\%h, 'zzz'      )));
+}
+
 printf ("Unit_t.pl: Passed.\n");

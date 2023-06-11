@@ -6,7 +6,7 @@ our @EXPORT = qw
 (
 	Azzert Azzert_eq Azzert_ne
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
-	SplitCommandLine
+	SplitCommandLine HashElementOr
 );
 
 sub Azzert
@@ -235,6 +235,15 @@ sub SplitCommandLine
 	}
 	
 	return @asRet;
+}
+
+sub HashElementOr
+{
+	my $rh           = @_ ? shift : Azzert ();
+	my $ks           = @_ ? shift : Azzert ();
+	my $sAlternative = @_ ? shift : undef;
+	
+	return exists $rh->{$ks} ? $rh->{$ks} : $sAlternative;
 }
 
 1;
