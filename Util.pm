@@ -6,6 +6,7 @@ our @EXPORT = qw
 (
 	Azzert Azzert_eq Azzert_ne
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
+	SplitCommandLine
 );
 
 sub Azzert
@@ -155,6 +156,85 @@ sub IndexOfStringInArray
 	}
 	
 	return -1;
+}
+
+sub SplitCommandLine
+{
+	my $s0 = @_ ? shift : Azzert ();
+	
+	my @asRet = ();
+	{
+		my $iState = 0;
+		my $sArg   = '';
+		my $cc0    = length ($s0);
+		for (my $ic0 = 0; $ic0 <= $cc0; ++$ic0) # Yes, <=.
+		{
+			my $c0   = $ic0 < $cc0 ? substr ($s0, $ic0, 1) : '';
+			my $ord0 = $ic0 < $cc0 ? ord ($c0)             : 0;
+			
+			if (! $iState)
+			{
+				if (! $ord0)
+					{ last; }
+				elsif ($ord0 <= 0x20)
+					{ next; }
+				elsif ($c0 eq "\"")
+					{ $iState = 20; }
+				elsif ($c0 eq "\'")
+					{ $iState = 30; }
+				else
+					{ $sArg .= $c0; $iState = 10; }
+			}
+			elsif ($iState == 10)
+			{
+				Azzert (length ($sArg));
+				
+				if (! $ord0)
+					{ push (@asRet, $sArg); $sArg = ''; last; }
+				elsif ($ord0 <= 0x20)
+					{ push (@asRet, $sArg); $sArg = ''; $iState = 0; }
+				elsif ($c0 eq "\"")
+					{ $iState = 20; }
+				elsif ($c0 eq "\'")
+					{ $iState = 30; }
+				else
+					{ $sArg .= $c0; }
+			}
+			elsif ($iState == 20)
+			{
+				if (! $ord0)
+					{ push (@asRet, $sArg); $sArg = ''; last; }
+				elsif ($c0 eq "\\")
+					{ $iState = 21; }
+				elsif ($c0 eq "\"")
+					{ $iState = 10; }
+				else
+					{ $sArg .= $c0; }
+			}
+			elsif ($iState == 21)
+			{
+				if (! $ord0)
+					{ push (@asRet, $sArg); $sArg = ''; last; }
+				else
+					{ $sArg .= $c0; $iState = 20; }
+			}
+			elsif ($iState == 30)
+			{
+				if (! $ord0)
+					{ push (@asRet, $sArg); $sArg = ''; last; }
+				elsif ($c0 eq '\'')
+					{ $iState = 10; }
+				else
+					{ $sArg .= $c0; }
+			}
+			else
+			{
+				Azzert ();
+			}
+		}
+	}
+	
+	return @asRet;
 }
 
 1;

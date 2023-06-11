@@ -85,4 +85,17 @@ use Util;
 	Azzert (IndexOfStringInArray ($ras, 'ten' ) == -1);
 }
 
+{
+	my $s0 = "   -g   -std=\"c++17\"  -W'all'   ";
+	my @as1 = SplitCommandLine ($s0);
+	#printf ("%s\n", ArrayToString (\@as1));
+	
+	my @as1_Expected = ('-g', '-std=c++17', '-Wall');
+	Azzert (scalar (@as1) == scalar (@as1_Expected));
+	for (my $i = 0; $i < scalar (@as1); ++$i)
+	{
+		Azzert ($as1 [$i] eq $as1_Expected [$i]);
+	}
+}
+
 printf ("Unit_t.pl: Passed.\n");
