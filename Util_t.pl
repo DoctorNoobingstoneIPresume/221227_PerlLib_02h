@@ -105,4 +105,39 @@ use Util;
 	Azzert (! defined (HashElementOr (\%h, 'zzz'      )));
 }
 
+{
+	#my $s1 = StringToNumber ('   xxx yyy   ');
+	#printf ("\"%s\"\n", $s1);
+	
+	for (my $iAbsValue = 0; $iAbsValue < 1024; ++$iAbsValue)
+	{
+		for (my $iSign = 1; $iSign >= -1; $iSign -= 2)
+		{
+			my $sSign  = $iSign == 1 ? '+' : '-';
+			my $iValue = $iSign * $iAbsValue;
+			
+			for (my $ccSpace = 0; $ccSpace < 3; ++$ccSpace)
+			{
+				my $sSpace = ' ' x $ccSpace;
+				
+				{
+					my @asArgs = ($sSpace, $sSign, $sSpace, $iAbsValue, $sSpace);
+					
+					my @asFormats = ('%u', '0x%X', '0x%x', '%Xh', '%xh');
+					foreach my $sFormat (@asFormats)
+					{
+						my $s0 = sprintf ('%s%s%s' . $sFormat . '%s', @asArgs);
+						
+						my $iResult = StringToNumber ($s0);
+						#printf ("iAbsValue %4u. iSign %+d. s0 \"%s\". iResult %d...\n", $iAbsValue, $iSign, $s0, $iResult);
+						Azzert (defined ($iResult));
+						Azzert ($iResult == $iValue);
+					}
+				}
+			}
+		}
+	}
+	
+}
+
 printf ("Unit_t.pl: Passed.\n");

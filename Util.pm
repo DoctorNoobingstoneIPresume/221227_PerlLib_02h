@@ -6,7 +6,7 @@ our @EXPORT = qw
 (
 	Azzert Azzert_eq Azzert_ne
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
-	SplitCommandLine HashElementOr
+	SplitCommandLine HashElementOr StringToNumber
 );
 
 sub Azzert
@@ -244,6 +244,61 @@ sub HashElementOr
 	my $sAlternative = @_ ? shift : undef;
 	
 	return exists $rh->{$ks} ? $rh->{$ks} : $sAlternative;
+}
+
+sub StringToNumber
+{
+	my $s0    = @_ ? shift : Azzert ();
+	my $iBase = @_ ? shift : 10;
+	
+	$s0 =~ s#^ \s* (\S.*?) \s* $#$1#x;
+	
+	my $iSign = +1;
+	{
+		if ($s0 =~ m# ([+-]) (.*) #x)
+			{ $iSign = $1 eq '+' ? +1 : -1; $s0 = $2; }
+	}
+	
+	my $s1 = '';
+	{
+		if    ($s0 =~ m# 0[xX] ([0-9A-Fa-f][0-9A-Fa-f_']*) #x)
+			{ $iBase = 16; $s1 = $1; }
+		elsif ($s0 =~ m#       ([0-9A-FA-f][0-9A-Fa-f_']*)[Hh] #x)
+			{ $iBase = 16; $s1 = $1; }
+		elsif ($s0 =~ m# ([0-9_']+) #x)
+			{ $iBase = 10; $s1 = $1; }
+		else
+			{ return undef; }
+	}
+	
+	$iValue = 0;
+	{
+		my $sUpperCaseDigits = '0123456789ABCDEF';
+		my $sLowerCaseDigits = '0123456789abcdef';
+		
+		#printf ("s1 \"%s\".\n", $s1);
+		
+		my $cc = length ($s1);
+		for ($ic = 0; $ic < $cc; ++$ic)
+		{
+			my $c     = substr ($s1, $ic, 1);
+			my $digit = index ($sUpperCaseDigits, $c);
+			{
+				if ($digit < 0)
+					{ $digit = index ($sLowerCaseDigits, $c); }
+			}
+			
+			if ($digit < 0)
+				{ next; }
+			
+			if ($digit >= $iBase)
+				{ return undef; }
+			
+			$iValue = $iValue * $iBase + $digit;
+		}
+	}
+	
+	return $iSign * $iValue;
 }
 
 1;
