@@ -7,6 +7,7 @@ our @EXPORT = qw
 	Azzert Azzert_eq Azzert_ne
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
+	GetOrSetObjectProperty
 );
 
 sub Azzert
@@ -299,6 +300,15 @@ sub StringToNumber
 	}
 	
 	return $iSign * $iValue;
+}
+
+sub GetOrSetObjectProperty
+{
+	my $sProperty = @_ ? shift : Azzert ();
+	my $self      = @_ ? shift : Azzert ();
+	
+	if (@_) { my $value = shift; $self->{$sProperty} = $value; return $self; }
+	else    { return $self->{$sProperty}; }
 }
 
 1;
