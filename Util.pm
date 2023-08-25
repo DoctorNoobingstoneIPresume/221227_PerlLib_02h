@@ -8,6 +8,7 @@ our @EXPORT = qw
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
 	GetOrSetObjectProperty
+	PrettyIntegral
 );
 
 sub Azzert
@@ -309,6 +310,21 @@ sub GetOrSetObjectProperty
 	
 	if (@_) { my $value = shift; $self->{$sProperty} = $value; return $self; }
 	else    { return $self->{$sProperty}; }
+}
+
+# https://stackoverflow.com/questions/33442240/perl-printf-to-use-commas-as-thousands-separator
+sub PrettyIntegral
+{
+	my $x             = @_ ? shift : Azzert ();
+	my $Width_nDigits = @_ ? shift : 0;
+	
+	while ($x =~ s#(\d+)(\d{3})#$1,$2#g) {}
+	if ($Width_nDigits >= 1)
+	{
+		$x = sprintf ("%*s", $Width_nDigits + int (($Width_nDigits - 1) / 3), $x);
+	}
+	
+	return $x;
 }
 
 1;
