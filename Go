@@ -3,7 +3,9 @@ set -e -o pipefail
 
 Main ()
 {
-	local sFolder0="$(dirname "${0}")"
+	# [2024-04-16] https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+	local sFolder0="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+	
 	printf "sFolder0 %s.\n" "\"${sFolder0}\""
 	
 	if ((1)); then
