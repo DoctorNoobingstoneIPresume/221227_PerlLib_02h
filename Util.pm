@@ -9,6 +9,7 @@ our @EXPORT = qw
 	SplitCommandLine HashElementOr StringToNumber
 	GetOrSetObjectProperty
 	PrettyIntegral
+	QuoteArg QuoteArgs
 );
 
 sub Azzert
@@ -325,6 +326,42 @@ sub PrettyIntegral
 	}
 	
 	return $x;
+}
+
+sub QuoteArg
+{
+	my $sArg = @_ ? shift : Azzert ();
+	
+	if ($sArg =~ m#'#)
+	{
+		$sArg =~ s#\\#\\\\#g;
+		$sArg =~ s#"#\\"#g;
+		#$sArg =~ s#'#\\'#g;
+		$sArg = "\"${sArg}\"";
+	}
+	elsif (! length ($sArg) || $sArg =~ m#\s#)
+	{
+		$sArg = "'${sArg}'";
+	}
+	else
+	{}
+	
+	return $sArg;
+}
+
+sub QuoteArgs
+{
+	my $sRet = '';
+	{
+		my $sSep = '';
+		foreach my $sArg (@_)
+		{
+			$sRet .= $sSep . QuoteArg ($sArg);
+			$sSep = ' ';
+		}
+	}
+	
+	return $sRet;
 }
 
 1;

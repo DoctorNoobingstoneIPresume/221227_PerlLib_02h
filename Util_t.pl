@@ -140,4 +140,18 @@ use Util;
 	
 }
 
+sub QuoteArg_unittest
+{
+	Azzert_eq (QuoteArg ('aaa'), 'aaa');
+	Azzert_eq (QuoteArg ('aaa "bbb ccc"'), "'aaa \"bbb ccc\"'");
+	Azzert_eq (QuoteArg ("aaa 'bbb ccc' \"ddd eee\""), "\"aaa 'bbb ccc' \\\"ddd eee\\\"\"");
+}
+QuoteArg_unittest ();
+
+sub QuoteArgs_unittest
+{
+	Azzert_eq (QuoteArgs ('aaa bbb', 'ccc', '', 'ddd eee'), "'aaa bbb' ccc '' 'ddd eee'");
+}
+QuoteArgs_unittest ();
+
 printf ("Unit_t.pl: Passed.\n");
