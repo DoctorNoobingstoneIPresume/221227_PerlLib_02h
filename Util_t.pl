@@ -150,7 +150,7 @@ QuoteArg_unittest ();
 
 sub QuoteArgs_unittest
 {
-	Azzert_eq (QuoteArgs ('aaa bbb', 'ccc', '', 'ddd eee'), "'aaa bbb' ccc '' 'ddd eee'");
+	Azzert_eq (QuoteArgs (['aaa bbb', 'ccc', '', 'ddd eee']), "'aaa bbb' ccc '' 'ddd eee'");
 }
 QuoteArgs_unittest ();
 

@@ -351,10 +351,12 @@ sub QuoteArg
 
 sub QuoteArgs
 {
+	my $rasArgs = @_ ? shift : Azzert (); { Azzert (ref $rasArgs eq 'ARRAY'); }
+	
 	my $sRet = '';
 	{
 		my $sSep = '';
-		foreach my $sArg (@_)
+		foreach my $sArg (@$rasArgs)
 		{
 			$sRet .= $sSep . QuoteArg ($sArg);
 			$sSep = ' ';
