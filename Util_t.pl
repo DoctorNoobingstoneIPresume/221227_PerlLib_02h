@@ -79,6 +79,12 @@ use Util;
 }
 
 {
+	my %h = (0 => '000', 'aaa' => 'AAA');
+	#printf ("%s\n", HashToString (\%h));
+	Azzert_eq (HashToString (\%h), "'0' -> '000'\n" . "'aaa' -> 'AAA'\n");
+}
+
+{
 	my $ras = ['zero', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'];
 	Azzert (IndexOfStringInArray ($ras, 'zero') ==  0);
 	Azzert (IndexOfStringInArray ($ras, 'neuf') ==  9);

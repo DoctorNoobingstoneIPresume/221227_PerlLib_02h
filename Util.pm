@@ -5,7 +5,7 @@ use Exporter qw (import);
 our @EXPORT = qw
 (
 	Azzert Azzert_eq Azzert_ne
-	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString IndexOfStringInArray
+	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
 	GetOrSetObjectProperty
 	PrettyIntegral
@@ -137,6 +137,24 @@ sub HashMapKeysToString
 		foreach my $ks (sort keys %$rhks)
 		{
 			$sRet .= $ks . "\n";
+		}
+	}
+	
+	return $sRet;
+}
+
+sub HashToString
+{
+	my $rh = @_ ? shift : Azzert ();
+		{ Azzert (ref $rh eq 'HASH'); }
+	my $ccKey = @_ ? shift : 0;
+		{ Azzert (ref $ccKey eq ''); }
+	
+	my $sRet = '';
+	{
+		foreach my $ks (sort keys %$rh)
+		{
+			$sRet .= sprintf ("%-*s -> %s\n", $ccKey, "'" . $ks . "'", "'" . $rh->{$ks} . "'");
 		}
 	}
 	
