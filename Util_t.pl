@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
-use strict; use warnings;
-
 use Util;
+use strict; use warnings;
 
 {
 	for (my $bChompLines = 0; $bChompLines < 2; ++$bChompLines)
