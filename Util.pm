@@ -4,6 +4,8 @@ package Util;
 use Exporter qw (import);
 our @EXPORT = qw
 (
+	printf_2 SeverityText printf_2s
+	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
 	Azzert Azzert_eq Azzert_ne
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
@@ -11,6 +13,53 @@ our @EXPORT = qw
 	PrettyIntegral
 	QuoteArg QuoteArgs
 );
+
+sub printf_2
+{
+	{ use IO::Handle; STDOUT->flush (); }
+	return printf STDERR (@_);
+}
+
+# [2024-07-25] https://en.wikipedia.org/wiki/Syslog
+use constant
+{
+	EMERG   => 0, PANIC   => 0,
+	ALERT   => 1,
+	CRIT    => 2,
+	ERR     => 3, ERROR   => 3,
+	WARNING => 4, WARN    => 4,
+	NOTICE  => 5,
+	INFO    => 6,
+	DEBUG   => 7,
+	
+	SEVERITY_LIMIT => 8
+};
+
+# [2024-07-25]
+#   We might propose the (deprecated) 'error' text instead of the 'err' text
+#   in order to allow the human user to search for '(warning|error):' within output of tools...
+use constant SEVERITY_TEXT        => qw (emerg alert crit err warning notice info debug);
+use constant SEVERITY_TEXT_MAXLEN => 7;
+
+sub SeverityText
+{
+	my $iSeverity = @_ ? shift : Azzert ();
+	{
+		Azzert ($iSeverity >= 0 && $iSeverity < SEVERITY_LIMIT);
+	}
+	
+	return (SEVERITY_TEXT) [$iSeverity];
+}
+
+sub printf_2s
+{
+	my $iSeverity = @_ ? shift : Azzert ();
+	my $sSeverity = SeverityText ($iSeverity);
+	
+	{ use IO::Handle; STDOUT->flush (); }
+	printf STDERR ('[%-*s] ', SEVERITY_TEXT_MAXLEN + 1, $sSeverity . ':');
+	printf STDERR (@_);
+}
 
 sub Azzert
 {

@@ -3,6 +3,10 @@ use Util;
 use strict; use warnings;
 
 {
+	printf_2s (Util->ERR, "Bau (%s) !\n", 'Hello, World !');
+}
+
+{
 	for (my $bChompLines = 0; $bChompLines < 2; ++$bChompLines)
 	{
 		for (my $n = 0; $n < 4; ++$n)
