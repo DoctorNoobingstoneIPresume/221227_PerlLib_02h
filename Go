@@ -1,16 +1,29 @@
 #!/bin/bash
 set -e -o pipefail
 
+# [2024-04-16] https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+declare Go_sFolder0="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+printf 'Go_sFolder0 %s.\n' "'${Go_sFolder0}'"
+
 Main ()
 {
-	# [2024-04-16] https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
-	local sFolder0="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+	set -e -o pipefail
 	
-	printf "sFolder0 %s.\n" "\"${sFolder0}\""
-	
-	if ((1)); then
-		perl -I "${sFolder0}/" "${sFolder0}/Util_t.pl"
-	fi
+	(
+		local -a asTests=(
+			'Util_t.pl'
+		)
+		
+		local sTest
+		for sTest in "${asTests[@]}"; do
+		(
+			printf '# Running test %s:\n{\n' "'${sTest}'"
+			trap "printf '}\n\n'" EXIT
+			cd "${Go_sFolder0}/"
+			perl -I './' "${sTest}"
+		)
+		done
+	)
 }
 
 Main "$@"
