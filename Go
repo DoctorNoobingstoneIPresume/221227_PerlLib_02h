@@ -12,6 +12,7 @@ Main ()
 	(
 		local -a asTests=(
 			'Util_t.pl'
+			'DestroyGuard_t.pl'
 		)
 		
 		local sTest
