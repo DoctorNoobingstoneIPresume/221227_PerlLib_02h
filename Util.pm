@@ -70,7 +70,7 @@ sub Azzert
 	if (! $bCondition)
 	{
 		{ use IO::Handle; STDOUT->flush (); }
-		{ use Carp; croak ("Azzertion has failed. ${sMessage}"); }
+		{ use Carp; croak ("Error: Azzertion has failed. ${sMessage}"); }
 	}
 	
 	return $bCondition;
