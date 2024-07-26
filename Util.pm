@@ -7,6 +7,7 @@ our @EXPORT = qw
 	printf_2 SeverityText printf_2s
 	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
 	Azzert Azzert_eq Azzert_ne
+	Azzert_num_Impl Azzert_num_eq Azzert_num_ne Azzert_num_lt Azzert_num_le Azzert_num_gt Azzert_num_ge
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty
@@ -77,6 +78,30 @@ sub Azzert
 
 sub Azzert_eq { my $s0 = @_ ? shift : Azzert (); my $s1 = @_ ? shift : Azzert (); Azzert ($s0 eq $s1, "Azzert_eq has failed: '${s0}' vs '${s1}'."); }
 sub Azzert_ne { my $s0 = @_ ? shift : Azzert (); my $s1 = @_ ? shift : Azzert (); Azzert ($s0 ne $s1, "Azzert_ne has failed: '${s0}' vs '${s1}'."); }
+
+sub Azzert_num_Impl
+{
+	my $rFunction     = @_ ? shift : &Azzert (); { &Azzert (ref $rFunction eq 'CODE'); }
+	my $x             = @_ ? shift : &Azzert ();
+	my $y             = @_ ? shift : &Azzert ();
+	# [2024-07-26] https://stackoverflow.com/questions/2559792/how-can-i-get-the-name-of-the-current-subroutine-in-perl
+	my $sFunctionName = @_ ? shift : (caller (1)) [3];
+	&Azzert (! @_);
+	
+	my $bResult = $rFunction->($x, $y);
+	if (! $bResult)
+	{
+		my $sMessage = sprintf ('%s has failed (%g vs %g) !', "'${sFunctionName}'", $x, $y);
+		Azzert (0, $sMessage);
+	}
+}
+
+sub Azzert_num_eq { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x == $y; }, splice (@_, 0, 2)); }
+sub Azzert_num_ne { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x != $y; }, splice (@_, 0, 2)); }
+sub Azzert_num_lt { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x <  $y; }, splice (@_, 0, 2)); }
+sub Azzert_num_le { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x <= $y; }, splice (@_, 0, 2)); }
+sub Azzert_num_gt { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x >  $y; }, splice (@_, 0, 2)); }
+sub Azzert_num_ge { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x >= $y; }, splice (@_, 0, 2)); }
 
 sub IndentPrefix
 {

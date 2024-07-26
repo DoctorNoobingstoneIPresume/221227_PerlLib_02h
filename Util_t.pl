@@ -159,6 +159,14 @@ if (0)
 	$mojeom->R (0.5); &Azzert ($mojeom->R () == 0.5);
 }
 
+{
+	my ($x, $y) = (10, 13);
+	&Azzert_num_eq ($x, $x);
+	&Azzert_num_ne ($x, $y);
+	&Azzert_num_lt ($x, $y); &Azzert_num_le ($x, $x); &Azzert_num_le ($x, $y);
+	&Azzert_num_gt ($y, $x); &Azzert_num_ge ($y, $y); &Azzert_num_ge ($y, $x);
+}
+
 sub QuoteArg_unittest
 {
 	Azzert_eq (QuoteArg ('aaa'), 'aaa');
