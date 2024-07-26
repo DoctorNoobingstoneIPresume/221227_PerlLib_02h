@@ -9,7 +9,7 @@ our @EXPORT = qw
 	Azzert Azzert_eq Azzert_ne
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
-	GetOrSetObjectProperty
+	GetOrSetObjectProperty GetOrCheckSetObjectProperty
 	PrettyIntegral
 	QuoteArg QuoteArgs
 );
@@ -378,6 +378,37 @@ sub GetOrSetObjectProperty
 	
 	if (@_) { my $value = shift; $self->{$sProperty} = $value; return $self; }
 	else    { return $self->{$sProperty}; }
+}
+
+sub GetOrCheckSetObjectProperty
+{
+	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq ref '');
+	my $rfnCheck  = @_ ? shift : &Azzert (); if (defined ($rfnCheck)) { &Azzert (ref $rfnCheck eq ref sub {}); }
+	my $self      = @_ ? shift : &Azzert ();
+	
+	if (@_)
+	{
+		my $value = shift;
+		
+		if (defined ($rfnCheck))
+		{
+			my $bResult = & {$rfnCheck} ($value);
+			# [2024-07-26] TODO:
+			#   Should we warn or silently reject or loudly reject ?!
+			#   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
+			#&Azzert ($bResult);
+			if ($bResult)
+			{
+				$self->{$sProperty} = $value;
+			}
+		}
+		
+		return $self;
+	}
+	else
+	{
+		return $self->{$sProperty};
+	}
 }
 
 # https://stackoverflow.com/questions/33442240/perl-printf-to-use-commas-as-thousands-separator

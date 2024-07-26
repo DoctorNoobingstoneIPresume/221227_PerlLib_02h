@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+use Mojeom;
 use Util;
 use strict; use warnings;
 
@@ -147,6 +148,13 @@ use strict; use warnings;
 		}
 	}
 	
+}
+
+{
+	my $mojeom = Mojeom->CreateObject ();
+	printf ("Mojeom {%s}.\n", $mojeom->ToString ());
+	$mojeom->R (1.1); &Azzert ($mojeom->R () == 1);
+	$mojeom->R (0.5); &Azzert ($mojeom->R () == 0.5);
 }
 
 sub QuoteArg_unittest
