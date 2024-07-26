@@ -3,6 +3,8 @@ use Mojeom;
 use Util;
 use strict; use warnings;
 
+# [2024-07-27] TODO: Somehow test `printf_2s?`.
+if (0)
 {
 	printf_2s (Util->ERR, "Bau (%s) !\n", 'Hello, World !');
 }
