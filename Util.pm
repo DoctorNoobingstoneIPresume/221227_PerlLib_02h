@@ -6,8 +6,11 @@ our @EXPORT = qw
 (
 	printf_2 SeverityText printf_2s
 	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
-	Azzert Azzert_eq Azzert_ne
-	Azzert_num_Impl Azzert_num_eq Azzert_num_ne Azzert_num_lt Azzert_num_le Azzert_num_gt Azzert_num_ge
+	Azzert
+	Azzert_Compare_Impl
+	Azzert_num_eq Azzert_num_ne Azzert_num_lt Azzert_num_le Azzert_num_gt Azzert_num_ge
+	Azzert_str_eq Azzert_str_ne Azzert_str_lt Azzert_str_le Azzert_str_gt Azzert_str_ge
+	Azzert_eq     Azzert_ne     Azzert_lt     Azzert_le     Azzert_gt     Azzert_ge
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine HashElementOr StringToNumber
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty
@@ -65,7 +68,8 @@ sub printf_2s
 sub Azzert
 {
 	my $bCondition = shift;
-	my $sMessage   = @_ ? shift : 'No message.';
+	my $sMessage   = shift;
+		{ if (! defined ($sMessage)) { $sMessage = 'No message.'; } }
 	
 	if (! $bCondition)
 	{
@@ -76,14 +80,12 @@ sub Azzert
 	return $bCondition;
 }
 
-sub Azzert_eq { my $s0 = @_ ? shift : Azzert (); my $s1 = @_ ? shift : Azzert (); Azzert ($s0 eq $s1, "Azzert_eq has failed: '${s0}' vs '${s1}'."); }
-sub Azzert_ne { my $s0 = @_ ? shift : Azzert (); my $s1 = @_ ? shift : Azzert (); Azzert ($s0 ne $s1, "Azzert_ne has failed: '${s0}' vs '${s1}'."); }
-
-sub Azzert_num_Impl
+sub Azzert_Compare_Impl
 {
 	my $rFunction     = @_ ? shift : &Azzert (); { &Azzert (ref $rFunction eq 'CODE'); }
 	my $x             = @_ ? shift : &Azzert ();
 	my $y             = @_ ? shift : &Azzert ();
+	my $sMessage      =      shift;
 	# [2024-07-26] https://stackoverflow.com/questions/2559792/how-can-i-get-the-name-of-the-current-subroutine-in-perl
 	my $sFunctionName = @_ ? shift : (caller (1)) [3];
 	&Azzert (! @_);
@@ -91,17 +93,39 @@ sub Azzert_num_Impl
 	my $bResult = $rFunction->($x, $y);
 	if (! $bResult)
 	{
-		my $sMessage = sprintf ('%s has failed (%g vs %g) !', "'${sFunctionName}'", $x, $y);
+		my $sMessage = sprintf
+		(
+			'%s has failed (%s vs %s) !%s',
+			"'${sFunctionName}'", "'${x}'", "'${y}'", defined ($sMessage) ? " ${sMessage}" : ''
+		);
+		
 		Azzert (0, $sMessage);
 	}
 }
 
-sub Azzert_num_eq { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x == $y; }, splice (@_, 0, 2)); }
-sub Azzert_num_ne { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x != $y; }, splice (@_, 0, 2)); }
-sub Azzert_num_lt { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x <  $y; }, splice (@_, 0, 2)); }
-sub Azzert_num_le { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x <= $y; }, splice (@_, 0, 2)); }
-sub Azzert_num_gt { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x >  $y; }, splice (@_, 0, 2)); }
-sub Azzert_num_ge { return &Azzert_num_Impl (sub { my ($x, $y) = @_; return $x >= $y; }, splice (@_, 0, 2)); }
+# [2024-07-29] `Azzert_(num|str|)_(eq|ne|lt|le|gt|ge)`:
+#   TODO: Could we "generate" the Perl code with less repetition ? :)
+
+sub Azzert_num_eq { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x == $y; }, @_); }
+sub Azzert_num_ne { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x != $y; }, @_); }
+sub Azzert_num_lt { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x <  $y; }, @_); }
+sub Azzert_num_le { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x <= $y; }, @_); }
+sub Azzert_num_gt { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x >  $y; }, @_); }
+sub Azzert_num_ge { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x >= $y; }, @_); }
+
+sub Azzert_str_eq { return &Azzert_Compare_Impl (sub { return $_ [0] eq $_ [1]; }, @_); }
+sub Azzert_str_ne { return &Azzert_Compare_Impl (sub { return $_ [0] ne $_ [1]; }, @_); }
+sub Azzert_str_lt { return &Azzert_Compare_Impl (sub { return $_ [0] lt $_ [1]; }, @_); }
+sub Azzert_str_le { return &Azzert_Compare_Impl (sub { return $_ [0] le $_ [1]; }. @_); }
+sub Azzert_str_gt { return &Azzert_Compare_Impl (sub { return $_ [0] gt $_ [1]; }, @_); }
+sub Azzert_str_ge { return &Azzert_Compare_Impl (sub { return @_ [0] ge $_ [1]; }, @_); }
+
+sub Azzert_eq     { return &Azzert_str_eq (@_); }
+sub Azzert_ne     { return &Azzert_str_ne (@_); }
+sub Azzert_lt     { return &Azzert_str_lt (@_); }
+sub Azzert_le     { return &Azzert_str_le (@_); }
+sub Azzert_gt     { return &Azzert_str_gt (@_); }
+sub Azzert_ge     { return &Azzert_str_ge (@_); }
 
 sub IndentPrefix
 {

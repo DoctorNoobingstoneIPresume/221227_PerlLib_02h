@@ -167,6 +167,13 @@ if (0)
 	&Azzert_num_gt ($y, $x); &Azzert_num_ge ($y, $y); &Azzert_num_ge ($y, $x);
 }
 
+{
+	my ($x, $y) = (' 10', 'Abracadabra');
+	&Azzert_str_ne ($x, $y);
+	&Azzert_str_lt ($x, $y);
+	&Azzert_gt     ($y, $x, 'This must be it !');
+}
+
 sub QuoteArg_unittest
 {
 	Azzert_eq (QuoteArg ('aaa'), 'aaa');
