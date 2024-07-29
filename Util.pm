@@ -345,55 +345,65 @@ sub StringToNumber
 {
 	my $s0    = @_ ? shift : Azzert ();
 	my $iBase = @_ ? shift : 10;
-	
-	$s0 =~ s#^ \s* (\S.*?) \s* $#$1#x;
-	
-	my $iSign = +1;
+	my $iSign = 1;
 	{
-		if ($s0 =~ m# ([+-]) (.*) #x)
-			{ $iSign = $1 eq '+' ? +1 : -1; $s0 = $2; }
-	}
-	
-	my $s1 = '';
-	{
-		if    ($s0 =~ m# 0[xX] ([0-9A-Fa-f][0-9A-Fa-f_']*) #x)
-			{ $iBase = 16; $s1 = $1; }
-		elsif ($s0 =~ m#       ([0-9A-FA-f][0-9A-Fa-f_']*)[Hh] #x)
-			{ $iBase = 16; $s1 = $1; }
-		elsif ($s0 =~ m# ([0-9_']+) #x)
-			{ $iBase = 10; $s1 = $1; }
-		else
-			{ return undef; }
-	}
-	
-	$iValue = 0;
-	{
-		my $sUpperCaseDigits = '0123456789ABCDEF';
-		my $sLowerCaseDigits = '0123456789abcdef';
-		
-		#printf ("s1 \"%s\".\n", $s1);
-		
-		my $cc = length ($s1);
-		for ($ic = 0; $ic < $cc; ++$ic)
+		for (;;)
 		{
-			my $c     = substr ($s1, $ic, 1);
-			my $digit = index ($sUpperCaseDigits, $c);
-			{
-				if ($digit < 0)
-					{ $digit = index ($sLowerCaseDigits, $c); }
-			}
+			my $bResult = $s0 =~ m/^\s*([+-]?)\s*(.*?)\s*$/;
+			&Azzert ($bResult);
 			
-			if ($digit < 0)
-				{ next; }
+			$s0 = $2;
 			
-			if ($digit >= $iBase)
-				{ return undef; }
-			
-			$iValue = $iValue * $iBase + $digit;
+			if ($1 eq '')
+				{ last; }
+			elsif ($1 eq '-')
+				{ $iSign = - $iSign; }
+			else
+				{ &Azzert_eq ($1, '+'); }
 		}
 	}
 	
-	return $iSign * $iValue;
+	#printf ("iSign %+d.\n", $iSign);
+	
+	my $s1 = '';
+	{
+		if    ($s0 =~ m/^ 0[Xx]   ([_'0-9A-Fa-f]+)        $/x) { $iBase = 16; $s1 = $1; }
+		elsif ($s0 =~ m/^         ([_'0-9A-Fa-f]+) [Hh]   $/x) { $iBase = 16; $s1 = $1; }
+		elsif ($s0 =~ m/^ 0[Bb]   ([_'0-1]      +)        $/x) { $iBase =  2; $s1 = $1; }
+		elsif ($s0 =~ m/^         ([_'0-1]      +) [Bb]   $/x) { $iBase =  2; $s1 = $1; }
+		elsif ($s0 =~ m/^ 0[OoQq] ([_'0-7]      +)        $/x) { $iBase =  8; $s1 = $1; }
+		elsif ($s0 =~ m/^         ([_'0-7]      +) [OoQq] $/x) { $iBase =  8; $s1 = $1; }
+		elsif ($s0 =~ m/^         ([_'0-9]      +)        $/x) { $iBase = 10; $s1 = $1; }
+		else                                                   { return undef; }
+	}
+	
+	my ($rv, $nDigits) = (0, 0);
+	{
+		my $sUpper = '0123456789ABCDEF';
+		
+		#printf ("s1 %s.\n", "'${s1}'");
+		
+		my $cc = length ($s1);
+		for (my $ic = 0; $ic < $cc; ++$ic)
+		{
+			my $c     = substr ($s1, $ic, 1);
+			my $digit = index ($sUpper, uc ($c));
+			{
+				if ($digit < 0)
+					{ $digit = index ($sLower, $c); }
+			}
+			
+			#printf ("digit %+3d.\n", $digit);
+			
+			if ($digit >= $iBase)
+				{ return undef; }
+			elsif ($digit >= 0)
+				# [2024-07-29] TODO: Check overflow/exactness ?
+				{ $rv *= $iBase; $rv += $digit; ++$nDigits; }
+		}
+	}
+	
+	return $nDigits ? $iSign * $rv : undef;
 }
 
 sub GetOrSetObjectProperty

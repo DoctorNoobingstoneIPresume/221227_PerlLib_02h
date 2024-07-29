@@ -135,13 +135,13 @@ if (0)
 				{
 					my @asArgs = ($sSpace, $sSign, $sSpace, $iAbsValue, $sSpace);
 					
-					my @asFormats = ('%u', '0x%X', '0x%x', '%Xh', '%xh');
+					my @asFormats = ('%u', '0X%X', '0x%x', '%XH', '%xh');
 					foreach my $sFormat (@asFormats)
 					{
 						my $s0 = sprintf ('%s%s%s' . $sFormat . '%s', @asArgs);
 						
 						my $iResult = StringToNumber ($s0);
-						#printf ("iAbsValue %4u. iSign %+d. s0 \"%s\". iResult %d...\n", $iAbsValue, $iSign, $s0, $iResult);
+						#printf ("iAbsValue %4u. iSign %+d. s0 %-16s. iResult %+16d...\n", $iAbsValue, $iSign, "'${s0}'", $iResult);
 						Azzert (defined ($iResult));
 						Azzert ($iResult == $iValue);
 					}
