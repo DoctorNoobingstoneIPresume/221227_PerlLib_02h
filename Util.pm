@@ -12,7 +12,7 @@ our @EXPORT = qw
 	Azzert_str_eq Azzert_str_ne Azzert_str_lt Azzert_str_le Azzert_str_gt Azzert_str_ge
 	Azzert_eq     Azzert_ne     Azzert_lt     Azzert_le     Azzert_gt     Azzert_ge
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
-	SplitCommandLine HashElementOr StringToNumber
+	SplitCommandLine ArrayElementMust ArrayElementOr HashElementMust HashElementOr StringToNumber
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty
 	PrettyIntegral
 	QuoteArg QuoteArgs
@@ -354,6 +354,31 @@ sub SplitCommandLine
 	}
 	
 	return @asRet;
+}
+
+sub ArrayElementMust
+{
+	my $ra           = @_ ? shift : &Azzert ();
+	my $ki           = @_ ? shift : &Azzert ();
+	
+	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : &Azzert ();
+}
+
+sub ArrayElementOr
+{
+	my $ra           = @_ ? shift : &Azzert ();
+	my $ki           = @_ ? shift : &Azzert ();
+	my $mAlternative =      shift;
+	
+	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : $mAlternative;
+}
+
+sub HashElementMust
+{
+	my $rh           = @_ ? shift : &Azzert ();
+	my $ks           = @_ ? shift : &Azzert ();
+	
+	return exists ($rh->{$ks}) ? $rh->{$ks} : &Azzert ();
 }
 
 sub HashElementOr
