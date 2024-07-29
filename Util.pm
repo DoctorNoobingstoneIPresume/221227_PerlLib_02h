@@ -42,7 +42,9 @@ use constant
 # [2024-07-25]
 #   We might propose the (deprecated) 'error' text instead of the 'err' text
 #   in order to allow the human user to search for '(warning|error):' within output of tools...
-use constant SEVERITY_TEXT        => qw (emerg alert crit err warning notice info debug);
+# [2024-07-29]
+#   Here we go (switching from 'err' to 'error'):
+use constant SEVERITY_TEXT        => qw (emerg alert crit error warning notice info debug);
 use constant SEVERITY_TEXT_MAXLEN => 7;
 
 sub SeverityText
