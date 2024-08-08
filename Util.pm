@@ -11,6 +11,7 @@ our @EXPORT = qw
 	Azzert_num_eq Azzert_num_ne Azzert_num_lt Azzert_num_le Azzert_num_gt Azzert_num_ge
 	Azzert_str_eq Azzert_str_ne Azzert_str_lt Azzert_str_le Azzert_str_gt Azzert_str_ge
 	Azzert_eq     Azzert_ne     Azzert_lt     Azzert_le     Azzert_gt     Azzert_ge
+	ShiftOrAzzert ShiftOr PopOrAzzert PopOr
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine ArrayElementMust ArrayElementOr HashElementMust HashElementOr StringToNumber
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty
@@ -128,6 +129,30 @@ sub Azzert_lt     { return &Azzert_str_lt (@_); }
 sub Azzert_le     { return &Azzert_str_le (@_); }
 sub Azzert_gt     { return &Azzert_str_gt (@_); }
 sub Azzert_ge     { return &Azzert_str_ge (@_); }
+
+sub ShiftOrAzzert
+{
+	my $rax = @_ ? shift : &Azzert ();
+	return @$rax ? shift @$rax : &Azzert (0, 'ShiftOrAzzert: Empty list !');
+}
+
+sub ShiftOr
+{
+	my $rax = @_ ? shift : &Azzert ();
+	return @$rax ? shift @$rax : shift;
+}
+
+sub PopOrAzzert
+{
+	my $rax = @_ ? shift : &Azzert ();
+	return @$rax ? pop @$rax : &Azzert (0, 'PopOrAzzert: Empty list !');
+}
+
+sub PopOr
+{
+	my $rax = @_ ? shift : &Azzert ();
+	return @$rax ? pop @$rax : shift;
+}
 
 sub IndentPrefix
 {

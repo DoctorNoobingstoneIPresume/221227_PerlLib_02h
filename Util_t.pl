@@ -174,6 +174,15 @@ if (0)
 	&Azzert_gt     ($y, $x, 'This must be it !');
 }
 
+sub CheckParams
+{
+	my $x = &ShiftOrAzzert (\@_); &Azzert ($x == 10);
+	my $y = &ShiftOrAzzert (\@_); &Azzert ($y == 20);
+	# [2024-08-08] TODO: Find a way to test this !!
+	#my $z = &ShiftOrAzzert (\@_);
+}
+&CheckParams (10, 20);
+
 sub QuoteArg_unittest
 {
 	Azzert_eq (QuoteArg ('aaa'), 'aaa');
