@@ -14,7 +14,15 @@ sub CreateObject
 	return bless ($self, $sClassName);
 }
 
-sub OnDestroy { return &GetOrSetObjectProperty ('rfnOnDestroy', @_); }
+sub OnDestroy
+{
+	return &GetOrCheckSetObjectProperty
+	(
+		'rfnOnDestroy',
+		sub { my $value = shift; &Azzert (! defined ($value) || ref $value eq 'CODE'); return 1; },
+		@_
+	);
+}
 
 sub DESTROY
 {
