@@ -10,7 +10,8 @@ sub CreateObject
 	{
 		'r' => 1,
 		'g' => 1,
-		'b' => 0
+		'b' => 0,
+		'a' => 1
 	};
 	
 	return bless ($self, $sClassName);
@@ -31,11 +32,12 @@ sub Nuance
 sub R { return &Nuance ('r', @_); }
 sub G { return &Nuance ('g', @_); }
 sub B { return &Nuance ('b', @_); }
+sub A { return &GetOrCheckSetObjectProperty ('a', undef, @_); }
 
 sub ToString
 {
 	my $self = @_ ? shift : &Azzert ();
-	return sprintf ('R %g, G %g, B %g', $self->R (), $self->G (), $self->B ());
+	return sprintf ('R %g, G %g, B %g, A %g', $self->R (), $self->G (), $self->B (), $self->A ());
 }
 
 1;

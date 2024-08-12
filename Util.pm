@@ -501,17 +501,15 @@ sub GetOrCheckSetObjectProperty
 	{
 		my $value = shift;
 		
-		if (defined ($rfnCheck))
+		# [2024-07-26] TODO:
+		#   Should we warn or silently reject or loudly reject ?!
+		#   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
+		#&Azzert ($bResult);
+		
+		my $bResult = defined $rfnCheck ? $rfnCheck->($value, @_) : 1;
+		if ($bResult)
 		{
-			my $bResult = & {$rfnCheck} ($value);
-			# [2024-07-26] TODO:
-			#   Should we warn or silently reject or loudly reject ?!
-			#   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
-			#&Azzert ($bResult);
-			if ($bResult)
-			{
-				$self->{$sProperty} = $value;
-			}
+			$self->{$sProperty} = $value;
 		}
 		
 		return $self;

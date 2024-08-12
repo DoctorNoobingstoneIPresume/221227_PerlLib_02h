@@ -157,6 +157,14 @@ if (0)
 	printf ("Mojeom {%s}.\n", $mojeom->ToString ());
 	$mojeom->R (1.1); &Azzert ($mojeom->R () == 1);
 	$mojeom->R (0.5); &Azzert ($mojeom->R () == 0.5);
+	
+	# [2024-08-12] We test a call to `GetOrCheckSetObjectProperty` without a checker sub.
+	{
+		my $a0 = $mojeom->A ();
+		my $a1 = $a0 - 0.25;
+		$mojeom->A ($a1);
+		&Azzert_num_eq ($mojeom->A (), $a1);
+	}
 }
 
 {
