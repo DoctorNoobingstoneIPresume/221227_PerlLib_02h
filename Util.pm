@@ -7,6 +7,7 @@ our @EXPORT = qw
 	printf_2 SeverityText printf_2s
 	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
 	Azzert
+	AzzertSub
 	Azzert_Compare_Impl
 	Azzert_num_eq Azzert_num_ne Azzert_num_lt Azzert_num_le Azzert_num_gt Azzert_num_ge
 	Azzert_str_eq Azzert_str_ne Azzert_str_lt Azzert_str_le Azzert_str_gt Azzert_str_ge
@@ -81,6 +82,15 @@ sub Azzert
 	}
 	
 	return $bCondition;
+}
+
+sub AzzertSub
+{
+	my $rfn      = @_ ? shift : &Azzert ();
+	my $sMessage =      shift;
+	
+	my $bResult  = $rfn->(@_);
+	&Azzert ($bResult, $sMessage);
 }
 
 sub Azzert_Compare_Impl
@@ -484,8 +494,9 @@ sub StringToNumber
 
 sub GetOrSetObjectProperty
 {
-	my $sProperty = @_ ? shift : Azzert ();
+	my $sProperty = @_ ? shift : Azzert (); &Azzert (ref $sProperty eq '');
 	my $self      = @_ ? shift : Azzert ();
+	&AzzertSub (sub { $self->{$sProperty}; return 1; });
 	
 	if (@_) { my $value = shift; $self->{$sProperty} = $value; return $self; }
 	else    { return $self->{$sProperty}; }
@@ -493,9 +504,10 @@ sub GetOrSetObjectProperty
 
 sub GetOrCheckSetObjectProperty
 {
-	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq ref '');
+	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
 	my $rfnCheck  = @_ ? shift : &Azzert (); if (defined ($rfnCheck)) { &Azzert (ref $rfnCheck eq ref sub {}); }
 	my $self      = @_ ? shift : &Azzert ();
+	&AzzertSub (sub { $self->{$sProperty}; return 1; });
 	
 	if (@_)
 	{

@@ -10,6 +10,16 @@ if (0)
 }
 
 {
+	&AzzertSub (sub { return 1; });
+	printf ("Expected success: [%u] [%s]\n", defined $@, $@);
+	&Azzert ($@ eq '');
+	eval { &AzzertSub (sub { return 0; }); };
+	printf ("Expected failure: [%u] [%s]\n", defined $@, $@);
+	&Azzert ($@ ne '');
+	&Azzert ($@ =~ m/\bError: .*\bAzzertion has failed./i);
+}
+
+{
 	for (my $bChompLines = 0; $bChompLines < 2; ++$bChompLines)
 	{
 		for (my $n = 0; $n < 4; ++$n)
