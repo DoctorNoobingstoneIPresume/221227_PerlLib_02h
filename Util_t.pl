@@ -183,6 +183,14 @@ if (0)
 		$mojeom->B (-0.25)             ; &Azzert ($mojeom->B () ==  0   );
 		$mojeom->B ( 1.25)             ; &Azzert ($mojeom->B () ==  1   );
 	}
+	
+	# [2024-08-14 >:D<] We test `GetOrDefAlterSetObjectProperty`:
+	{
+		$mojeom->G (undef); &Azzert ($mojeom->G () == 0.927);
+		$mojeom->G ('S7 aka Sophie !!'); &Azzert ($mojeom->G () ==  0.927);
+		$mojeom->G (-0.25 )            ; &Azzert ($mojeom->G () ==  0    );
+		$mojeom->G ( 1.25 )            ; &Azzert ($mojeom->G () ==  1    );
+	}
 }
 
 {

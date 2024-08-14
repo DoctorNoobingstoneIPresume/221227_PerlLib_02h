@@ -17,7 +17,7 @@ our @EXPORT = qw
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine ArrayElementMust ArrayElementOr HashElementMust HashElementOr StringToNumber
 	IsHashOrObject
-	GetOrSetObjectProperty GetOrCheckSetObjectProperty GetOrAlterSetObjectProperty
+	GetOrSetObjectProperty GetOrCheckSetObjectProperty GetOrAlterSetObjectProperty GetOrDefAlterSetObjectProperty
 	PrettyIntegral
 	QuoteArg QuoteArgs
 );
@@ -544,6 +544,26 @@ sub GetOrAlterSetObjectProperty
 	if (@_)
 	{
 		my $value = shift;
+		my $bResult = defined $rfnAlter ? $rfnAlter->(\$value, @_) : 1;
+		if ($bResult) { $self->{$sProperty} = $value; }
+		return $self;
+	}
+	else
+	{
+		return $self->{$sProperty};
+	}
+}
+
+sub GetOrDefAlterSetObjectProperty
+{
+	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
+	my $xDefValue = @_ ? shift : &Azzert (); &Azzert (ref $xDefValue eq '');
+	my $rfnAlter  = @_ ? shift : &Azzert (); if (defined $rfnAlter) { &Azzert (ref $rfnAlter eq 'CODE'); }
+	my $self      = @_ ? shift : &Azzert (); &Azzert (&IsHashOrObject ($self));
+	
+	if (@_)
+	{
+		my $value = shift; if (! defined $value) { $value = $xDefValue; }
 		my $bResult = defined $rfnAlter ? $rfnAlter->(\$value, @_) : 1;
 		if ($bResult) { $self->{$sProperty} = $value; }
 		return $self;
