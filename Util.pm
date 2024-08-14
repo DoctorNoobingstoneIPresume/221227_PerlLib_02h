@@ -1,6 +1,7 @@
 # [2022-11-03] Stolen from "F:/Adder1F/Projects/2022/221027_Output_of_readelf_01h/221027_ElfAnalyzer_PerlEdition/Util.pm":
 
 package Util;
+
 use Exporter qw (import);
 our @EXPORT = qw
 (
@@ -15,10 +16,13 @@ our @EXPORT = qw
 	ShiftOrAzzert ShiftOr PopOrAzzert PopOr
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine ArrayElementMust ArrayElementOr HashElementMust HashElementOr StringToNumber
+	IsHashOrObject
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty
 	PrettyIntegral
 	QuoteArg QuoteArgs
 );
+
+use strict; use warnings;
 
 sub printf_2
 {
@@ -131,7 +135,7 @@ sub Azzert_str_ne { return &Azzert_Compare_Impl (sub { return $_ [0] ne $_ [1]; 
 sub Azzert_str_lt { return &Azzert_Compare_Impl (sub { return $_ [0] lt $_ [1]; }, @_); }
 sub Azzert_str_le { return &Azzert_Compare_Impl (sub { return $_ [0] le $_ [1]; }. @_); }
 sub Azzert_str_gt { return &Azzert_Compare_Impl (sub { return $_ [0] gt $_ [1]; }, @_); }
-sub Azzert_str_ge { return &Azzert_Compare_Impl (sub { return @_ [0] ge $_ [1]; }, @_); }
+sub Azzert_str_ge { return &Azzert_Compare_Impl (sub { return $_ [0] ge $_ [1]; }, @_); }
 
 sub Azzert_eq     { return &Azzert_str_eq (@_); }
 sub Azzert_ne     { return &Azzert_str_ne (@_); }
@@ -474,10 +478,6 @@ sub StringToNumber
 		{
 			my $c     = substr ($s1, $ic, 1);
 			my $digit = index ($sUpper, uc ($c));
-			{
-				if ($digit < 0)
-					{ $digit = index ($sLower, $c); }
-			}
 			
 			#printf ("digit %+3d.\n", $digit);
 			
@@ -492,11 +492,19 @@ sub StringToNumber
 	return $nDigits ? $iSign * $rv : undef;
 }
 
+sub IsHashOrObject
+{
+	my $self = @_ ? shift : &Azzert ();
+	
+	# [2024-08-13 :|] Desperate attempts to avoid 'useless use' warnings from Perl.
+	eval { sub f { my $self = shift; return scalar keys %$self; } f ($self); };
+	return $@ eq '';
+}
+
 sub GetOrSetObjectProperty
 {
 	my $sProperty = @_ ? shift : Azzert (); &Azzert (ref $sProperty eq '');
-	my $self      = @_ ? shift : Azzert ();
-	&AzzertSub (sub { $self->{$sProperty}; return 1; });
+	my $self      = @_ ? shift : Azzert (); &Azzert (&IsHashOrObject ($self));
 	
 	if (@_) { my $value = shift; $self->{$sProperty} = $value; return $self; }
 	else    { return $self->{$sProperty}; }
@@ -505,25 +513,20 @@ sub GetOrSetObjectProperty
 sub GetOrCheckSetObjectProperty
 {
 	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
-	my $rfnCheck  = @_ ? shift : &Azzert (); if (defined ($rfnCheck)) { &Azzert (ref $rfnCheck eq ref sub {}); }
-	my $self      = @_ ? shift : &Azzert ();
-	&AzzertSub (sub { $self->{$sProperty}; return 1; });
+	my $rfnCheck  = @_ ? shift : &Azzert (); if (defined $rfnCheck) { &Azzert (ref $rfnCheck eq 'CODE'); }
+	my $self      = @_ ? shift : &Azzert (); &Azzert (&IsHashOrObject ($self));
 	
 	if (@_)
 	{
 		my $value = shift;
 		
+		my $bResult = defined $rfnCheck ? $rfnCheck->($value, @_) : 1;
 		# [2024-07-26] TODO:
 		#   Should we warn or silently reject or loudly reject ?!
 		#   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
 		#&Azzert ($bResult);
-		
-		my $bResult = defined $rfnCheck ? $rfnCheck->($value, @_) : 1;
-		if ($bResult)
-		{
-			$self->{$sProperty} = $value;
-		}
-		
+		#
+		if ($bResult) { $self->{$sProperty} = $value; }
 		return $self;
 	}
 	else
