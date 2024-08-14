@@ -17,7 +17,7 @@ our @EXPORT = qw
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine ArrayElementMust ArrayElementOr HashElementMust HashElementOr StringToNumber
 	IsHashOrObject
-	GetOrSetObjectProperty GetOrCheckSetObjectProperty
+	GetOrSetObjectProperty GetOrCheckSetObjectProperty GetOrAlterSetObjectProperty
 	PrettyIntegral
 	QuoteArg QuoteArgs
 );
@@ -526,6 +526,25 @@ sub GetOrCheckSetObjectProperty
 		#   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
 		#&Azzert ($bResult);
 		#
+		if ($bResult) { $self->{$sProperty} = $value; }
+		return $self;
+	}
+	else
+	{
+		return $self->{$sProperty};
+	}
+}
+
+sub GetOrAlterSetObjectProperty
+{
+	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
+	my $rfnAlter  = @_ ? shift : &Azzert (); if (defined $rfnAlter) { &Azzert (ref $rfnAlter eq 'CODE'); }
+	my $self      = @_ ? shift : &Azzert (); &Azzert (&IsHashOrObject ($self));
+	
+	if (@_)
+	{
+		my $value = shift;
+		my $bResult = defined $rfnAlter ? $rfnAlter->(\$value, @_) : 1;
 		if ($bResult) { $self->{$sProperty} = $value; }
 		return $self;
 	}

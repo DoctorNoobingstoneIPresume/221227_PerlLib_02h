@@ -29,9 +29,29 @@ sub Nuance
 	);
 }
 
+sub AlterNuance
+{
+	my $ks = @_ ? shift : &Azzert ();
+	
+	return &GetOrAlterSetObjectProperty
+	(
+		$ks,
+		sub
+		{
+			use Scalar::Util qw (looks_like_number);
+			my $ref_value = shift;
+			if (! looks_like_number ($$ref_value)) { return 0; }
+			if ($$ref_value < 0) { $$ref_value = 0; }
+			if ($$ref_value > 1) { $$ref_value = 1; }
+			return 1;
+		},
+		@_
+	);
+}
+
 sub R { return &Nuance ('r', @_); }
 sub G { return &Nuance ('g', @_); }
-sub B { return &Nuance ('b', @_); }
+sub B { return &AlterNuance ('b', @_); }
 sub A { return &GetOrCheckSetObjectProperty ('a', undef, @_); }
 
 sub ToString

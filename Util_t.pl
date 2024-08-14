@@ -175,6 +175,14 @@ if (0)
 		$mojeom->A ($a1);
 		&Azzert_num_eq ($mojeom->A (), $a1);
 	}
+	
+	# [2024-08-14 >:D<] We test `GetOrAlterSetObjectProperty`:
+	{
+		$mojeom->B ( 0.5 )             ; &Azzert ($mojeom->B () ==  0.5 );
+		$mojeom->B ('Ares vs Tashi !!'); &Azzert ($mojeom->B () ==  0.5 );
+		$mojeom->B (-0.25)             ; &Azzert ($mojeom->B () ==  0   );
+		$mojeom->B ( 1.25)             ; &Azzert ($mojeom->B () ==  1   );
+	}
 }
 
 {
