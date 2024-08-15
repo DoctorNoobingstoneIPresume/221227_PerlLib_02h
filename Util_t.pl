@@ -10,6 +10,12 @@ if (0)
 }
 
 {
+	&Azzert (  &LooksLikeNumber ('  1024'));
+	&Azzert (! &LooksLikeNumber ('  1024q'));
+	&Azzert (! &LooksLikeNumber ('Nikita la Femme'));
+}
+
+{
 	&AzzertSub (sub { return 1; });
 	printf ("Expected success: [%u] [%s]\n", defined $@, $@);
 	&Azzert ($@ eq '');

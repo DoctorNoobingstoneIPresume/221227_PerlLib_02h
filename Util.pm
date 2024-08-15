@@ -5,6 +5,7 @@ package Util;
 use Exporter qw (import);
 our @EXPORT = qw
 (
+	LooksLikeNumber
 	printf_2 SeverityText printf_2s
 	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
 	Azzert
@@ -23,6 +24,32 @@ our @EXPORT = qw
 );
 
 use strict; use warnings;
+
+# [2024-08-15 :x:x]
+#   LooksLikeNumber:
+#   
+#   Our `LooksLikeNumber` simply forwards the call to `Scalar::Util::looks_like_number`.
+#   
+#   `Scalar::Util` does not export anything by default.
+#   
+#   Therefore we have to either explicitly write (at the top of the file):
+#   `use Scalar::Util qw (looks_like_number);`
+#   and then write (at each call site):
+#   `&Azzert (looks_like_number ($x));`,
+#   or write (at each call site) (if we want to reduce the scope):
+#   `&Azzert (sub { use Scalar::Util qw (looks_like_number); return looks_like_number ($x); }->());`.
+#   
+#   Our new `LooksLikeNumber` is exported by default by this package,
+#   so we can just write (at the top of the file):
+#   `use Util;`
+#   and then write (at each call site):
+#   `&Azzert (LooksLikeNumber (&x));`.
+#
+sub LooksLikeNumber
+{
+	use Scalar::Util qw (looks_like_number);
+	return &looks_like_number (@_);
+}
 
 sub printf_2
 {
