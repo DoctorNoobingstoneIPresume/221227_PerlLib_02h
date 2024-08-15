@@ -133,6 +133,143 @@ if (0)
 	Azzert (! defined (HashElementOr (\%h, 'zzz'      )));
 }
 
+# [2024-08-15 :x:x]
+#   `&ArrayElement(Or|OrSub|OrAzzert)`:
+{
+	my @a = (0, 11, 22, 33, 44, 55, 66, 77, 88, 99);
+	
+	# [2024-08-15 :x:x] https://youtu.be/yokGq0yKdUc
+	my $sAlternate = 'T800 is commuting to Alternate Power...';
+	
+	{
+		for (my $i = -1; $i <= scalar @a; ++$i)
+		{
+			my $bGood = $i >= 0 && $i < scalar @a;
+			
+			{
+				my $y = &ArrayElementOr (\@a, $i, $sAlternate);
+				if ($bGood)
+				{
+					&Azzert_num_eq ($y, $a [$i]);
+				}
+				else
+				{
+					&Azzert_str_eq ($y, $sAlternate);
+				}
+			}
+			
+			{
+				my $y = &ArrayElementOrSub (\@a, $i, sub { my ($ra, $ki, $x) = @_; return $ki + $x; }, 7);
+				if ($bGood)
+				{
+					&Azzert_num_eq ($y, $a [$i]);
+				}
+				else
+				{
+					&Azzert_num_eq ($y, $i + 7);
+				}
+			}
+			
+			{
+				my $y;
+				my $sMessage = sprintf ('Failure at %u !!', $i);
+				eval
+				{
+					$y = &ArrayElementOrAzzert (\@a, $i, $sMessage);
+				};
+				
+				if ($bGood)
+				{
+					&Azzert_str_eq ($@, '');
+					&Azzert_num_eq ($y, $a [$i]);
+				}
+				else
+				{
+					&Azzert_str_ne ($@, '');
+					&Azzert ($@ =~ m/${sMessage}/);
+				}
+			}
+		}
+	}
+	{
+		my %h = map { ("key_${_}", "data_${_}"); } @a;
+		
+		#printf ("%s\n", &IndentWithTitle (&HashToString (\%h), '%h:'));
+		
+		for (my $i = -1; $i <= scalar @a; ++$i)
+		{
+			my $bGood = $i >= 0 && $i < scalar @a;
+			
+			my $j = &ArrayElementOr (\@a, $i, -927);
+			my ($ks, $ds) = ("key_${j}", "data_${j}");
+			
+			{
+				my $y = &HashElementOr (\%h, $ks, $sAlternate);
+				if ($bGood)
+				{
+					&Azzert_str_eq ($y, $ds);
+				}
+				else
+				{
+					&Azzert_str_eq ($y, $sAlternate);
+				}
+			}
+			
+			{
+				my $y = &HashElementOrSub (\%h, $ks, sub { my ($rh, $ks, $x) = @_; return $ks . $x; }, ' Tashi');
+				if ($bGood)
+				{
+					&Azzert_str_eq ($y, $ds);
+				}
+				else
+				{
+					&Azzert_str_eq ($y, $ks . ' Tashi');
+				}
+			}
+			
+			{
+				my $y;
+				my $sMessage = sprintf ('Failure at %u !!', $i);
+				eval
+				{
+					$y = &ArrayElementOrAzzert (\@a, $i, $sMessage);
+				};
+				
+				if ($bGood)
+				{
+					&Azzert_str_eq ($@, '');
+					&Azzert_num_eq ($y, $a [$i]);
+				}
+				else
+				{
+					&Azzert_str_ne ($@, '');
+					&Azzert ($@ =~ m/${sMessage}/);
+				}
+			}
+			
+			{
+				my $y;
+				my $sMessage = sprintf ('Failure at %u !!', $i);
+				eval
+				{
+					$y = &HashElementOrAzzert (\%h, $ks, $sMessage);
+				};
+				
+				if ($bGood)
+				{
+					&Azzert_str_eq ($@, '');
+					&Azzert_str_eq ($y, $ds);
+				}
+				else
+				{
+					&Azzert_str_ne ($@, '');
+					&Azzert ($@ =~ m/${sMessage}/);
+				}
+			}
+		}
+	}
+}
+
 {
 	#my $s1 = StringToNumber ('   xxx yyy   ');
 	#printf ("\"%s\"\n", $s1);

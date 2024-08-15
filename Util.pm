@@ -16,7 +16,10 @@ our @EXPORT = qw
 	Azzert_eq     Azzert_ne     Azzert_lt     Azzert_le     Azzert_gt     Azzert_ge
 	ShiftOrAzzert ShiftOr PopOrAzzert PopOr
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
-	SplitCommandLine ArrayElementMust ArrayElementOr HashElementMust HashElementOr StringToNumber
+	SplitCommandLine
+	ArrayElementMust ArrayElementOr ArrayElementOrSub ArrayElementOrAzzert
+	HashElementMust  HashElementOr  HashElementOrSub  HashElementOrAzzert
+	StringToNumber
 	IsHashOrObject
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty GetOrAlterSetObjectProperty GetOrDefAlterSetObjectProperty
 	PrettyIntegral
@@ -426,36 +429,66 @@ sub SplitCommandLine
 
 sub ArrayElementMust
 {
-	my $ra           = @_ ? shift : &Azzert ();
-	my $ki           = @_ ? shift : &Azzert ();
-	
-	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : &Azzert ();
+	# [2024-08-15 :x:x] TODO: `goto` ?!
+	return &ArrayElementOrAzzert (@_);
 }
 
 sub ArrayElementOr
 {
-	my $ra           = @_ ? shift : &Azzert ();
-	my $ki           = @_ ? shift : &Azzert ();
+	my $ra           = @_ ? shift : &Azzert (); &Azzert (ref $ra  eq 'ARRAY');
+	my $ki           = @_ ? shift : &Azzert (); &Azzert (&LooksLikeNumber ($ki));
 	my $mAlternative =      shift;
 	
 	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : $mAlternative;
 }
 
+sub ArrayElementOrSub
+{
+	my $ra           = @_ ? shift : &Azzert (); &Azzert (ref $ra  eq 'ARRAY');
+	my $ki           = @_ ? shift : &Azzert (); &Azzert (&LooksLikeNumber ($ki));
+	my $rfn          = @_ ? shift : &Azzert (); &Azzert (ref $rfn eq 'CODE');
+	
+	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : $rfn->($ra, $ki, @_);
+}
+
+sub ArrayElementOrAzzert
+{
+	my $ra           = @_ ? shift : &Azzert (); &Azzert (ref $ra  eq 'ARRAY');
+	my $ki           = @_ ? shift : &Azzert (); &Azzert (&LooksLikeNumber ($ki));
+	
+	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : &Azzert (0, @_);
+}
+
 sub HashElementMust
 {
-	my $rh           = @_ ? shift : &Azzert ();
-	my $ks           = @_ ? shift : &Azzert ();
-	
-	return exists ($rh->{$ks}) ? $rh->{$ks} : &Azzert ();
+	# [2024-08-15 :x:x] TODO: `goto` ?!
+	return &HashElementOrAzzert (@_);
 }
 
 sub HashElementOr
 {
-	my $rh           = @_ ? shift : Azzert ();
-	my $ks           = @_ ? shift : Azzert ();
-	my $sAlternative = @_ ? shift : undef;
+	my $rh           = @_ ? shift : &Azzert (); &Azzert (ref $rh  eq 'HASH');
+	my $ks           = @_ ? shift : &Azzert (); &Azzert (ref $ks  eq '');
+	my $mAlternative = @_ ? shift : undef;
 	
-	return exists $rh->{$ks} ? $rh->{$ks} : $sAlternative;
+	return exists $rh->{$ks} ? $rh->{$ks} : $mAlternative;
+}
+
+sub HashElementOrSub
+{
+	my $rh           = @_ ? shift : &Azzert (); &Azzert (ref $rh  eq 'HASH');
+	my $ks           = @_ ? shift : &Azzert (); &Azzert (ref $ks  eq '');
+	my $rfn          = @_ ? shift : &Azzert (); &Azzert (ref $rfn eq 'CODE');
+	
+	return exists $rh->{$ks} ? $rh->{$ks} : $rfn->($rh, $ks, @_);
+}
+
+sub HashElementOrAzzert
+{
+	my $rh           = @_ ? shift : &Azzert (); &Azzert (ref $rh  eq 'HASH');
+	my $ks           = @_ ? shift : &Azzert (); &Azzert (ref $ks  eq '');
+	
+	return exists $rh->{$ks} ? $rh->{$ks} : &Azzert (0, @_);
 }
 
 sub StringToNumber
