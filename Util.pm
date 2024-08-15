@@ -14,7 +14,11 @@ our @EXPORT = qw
 	Azzert_num_eq Azzert_num_ne Azzert_num_lt Azzert_num_le Azzert_num_gt Azzert_num_ge
 	Azzert_str_eq Azzert_str_ne Azzert_str_lt Azzert_str_le Azzert_str_gt Azzert_str_ge
 	Azzert_eq     Azzert_ne     Azzert_lt     Azzert_le     Azzert_gt     Azzert_ge
-	ShiftOrAzzert ShiftOr PopOrAzzert PopOr
+	
+	Shift  ShiftOr  ShiftOrInvoke  ShiftOrAzzert
+	Pop    PopOr    PopOrInvoke    PopOrAzzert
+	ShiftN ShiftNOr ShiftNOrInvoke ShiftNOrAzzert
+	
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine
 	ArrayElementMust ArrayElementOr ArrayElementOrSub ArrayElementOrAzzert
@@ -174,28 +178,222 @@ sub Azzert_le     { return &Azzert_str_le (@_); }
 sub Azzert_gt     { return &Azzert_str_gt (@_); }
 sub Azzert_ge     { return &Azzert_str_ge (@_); }
 
-sub ShiftOrAzzert
+sub Shift
 {
-	my $rax = @_ ? shift : &Azzert ();
-	return @$rax ? shift @$rax : &Azzert (0, 'ShiftOrAzzert: Empty list !');
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	
+	return shift @$ram;
 }
 
 sub ShiftOr
 {
-	my $rax = @_ ? shift : &Azzert ();
-	return @$rax ? shift @$rax : shift;
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $mAlternate    =      shift;
+	
+	return @$ram ? shift @$ram : $mAlternate;
 }
 
-sub PopOrAzzert
+sub ShiftOrInvoke
 {
-	my $rax = @_ ? shift : &Azzert ();
-	return @$rax ? pop @$rax : &Azzert (0, 'PopOrAzzert: Empty list !');
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram           eq 'ARRAY');
+	}
+	my $rfnAlternate  = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rfnAlternate  eq 'CODE' );
+	}
+	
+	return @$ram ? shift @$ram : $rfnAlternate->($ram, @_);
+}
+
+sub ShiftOrAzzert
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram           eq 'ARRAY');
+	}
+	my $sMsgAlternate =      shift;
+	{
+		&Azzert (! defined ($sMsgAlternate) || ref $sMsgAlternate eq '');
+	}
+	
+	return @$ram ? shift @$ram : &Azzert (0, defined ($sMsgAlternate) ? $sMsgAlternate : 'ShiftOrAzzert: Empty list !');
+}
+
+sub Pop
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram           eq 'ARRAY');
+	}
+	
+	return pop @$ram;
 }
 
 sub PopOr
 {
-	my $rax = @_ ? shift : &Azzert ();
-	return @$rax ? pop @$rax : shift;
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram           eq 'ARRAY');
+	}
+	my $mAlternate    =      shift;
+	
+	return @$ram ? pop @$ram : $mAlternate;
+}
+
+sub PopOrInvoke
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram           eq 'ARRAY');
+	}
+	my $rfnAlternate  = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rfnAlternate  eq 'CODE');
+	}
+	
+	return @$ram ? pop @$ram : $rfnAlternate->($ram, @_);
+}
+
+sub PopOrAzzert
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $sMsgAlternate =      shift;
+	{
+		&Azzert (! defined $sMsgAlternate || ref $sMsgAlternate eq '');
+	}
+	
+	return @$ram ? pop @$ram : &Azzert (0, defined ($sMsgAlternate) ? $sMsgAlternate : 'PopOrAzzert: Empty list !');
+}
+
+sub ShiftN
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $n             = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($n));
+		&Azzert_num_ge ($n, 0);
+	}
+	
+	return &ShiftNOr ($ram, $n, []);
+}
+
+sub ShiftNOr
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram          eq 'ARRAY');
+	}
+	my $n             = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($n));
+		&Azzert_num_ge ($n, 0);
+	}
+	my $ramAlternate  = @_ ? shift : []        ;
+	{
+		&Azzert (ref $ramAlternate eq 'ARRAY');
+	}
+	
+	my $iVerb         = 0;
+	
+	use List::Util qw (min);
+	
+	my $ram_n0        = scalar @$ram;
+	my $n0            = min ($n, $ram_n0);
+	
+	# [2024-08-20]
+	if ($iVerb)
+	{
+		printf
+		(
+			"ShiftNOr (\@\$ram (%s), \$n %u, \@\$ramAlternate (%s))...\n",
+			join (' ', @$ram),
+			$n,
+			join (' ', @$ramAlternate)
+		);
+	}
+	
+	my @amRet         = splice (@$ram, 0, $n0);
+	{
+		# [2024-08-16]
+		for (my ($i, $j) = ($n0, min ($n, scalar @$ramAlternate)); $i < $j; ++$i)
+		{
+			push (@amRet, $ramAlternate->[$i]);
+		}
+		#push (@amRet, (@$ramAlternate) [($n0 .. $n - 1)]);
+	}
+	
+	if ($iVerb)
+	{
+		printf
+		(
+			"=> amRet (%s).\n",
+			join (' ', @amRet)
+		);
+	}
+	
+	return @amRet;
+}
+
+sub ShiftNOrInvoke
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram          eq 'ARRAY');
+	}
+	my $n             = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($n));
+		&Azzert_num_ge ($n, 0);
+	}
+	my $rfnAlternate  = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rfnAlternate eq 'CODE' );
+	}
+	
+	my $ram_n0        = scalar @$ram;
+	my $ramAlternate  = $ram_n0 >= $n ? [] : $rfnAlternate->($ram, $n, @_);
+	return &ShiftNOr ($ram, $n, $ramAlternate, @_);
+}
+
+sub ShiftNOrAzzert
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $n             = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($n));
+		&Azzert_num_ge ($n, 0);
+	}
+	my $sMsgAlternate =      shift;
+	{
+		&Azzert (! defined $sMsgAlternate || ref $sMsgAlternate eq '');
+	}
+	
+	if (scalar @$ram >= $n)
+	{
+		return &ShiftNOr ($ram, $n, []);
+	}
+	else
+	{
+		my $sMsg = defined ($sMsgAlternate) ? $sMsgAlternate : sprintf ('ShiftNOrAzzert: available %u, requested %u !', scalar @$ram, $n);
+		&Azzert (0, $sMsg);
+	}
 }
 
 sub IndentPrefix

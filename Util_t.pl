@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 use Mojeom;
+use DestroyGuard;
 use Util;
 use strict; use warnings;
 
@@ -133,13 +134,13 @@ if (0)
 	Azzert (! defined (HashElementOr (\%h, 'zzz'      )));
 }
 
+# [2024-08-15 :x:x] https://youtu.be/yokGq0yKdUc
+my $sAlternate = 'T800 is re-routing to Alternate Power...';
+
 # [2024-08-15 :x:x]
 #   `&ArrayElement(Or|OrSub|OrAzzert)`:
 {
 	my @a = (0, 11, 22, 33, 44, 55, 66, 77, 88, 99);
-	
-	# [2024-08-15 :x:x] https://youtu.be/yokGq0yKdUc
-	my $sAlternate = 'T800 is commuting to Alternate Power...';
 	
 	{
 		for (my $i = -1; $i <= scalar @a; ++$i)
@@ -351,12 +352,187 @@ if (0)
 	&Azzert_gt     ($y, $x, 'This must be it !');
 }
 
+# `(Shift|Pop)(|Or|OrInvoke|OrAzzert)`:
+{
+	my $iVerb = 0;
+	
+	my $fFactor = 11;
+	my @af0 = map { $_ * $fFactor } 0 .. 9;
+	my $n = scalar @af0;
+	
+	for (my $iRep = 0; $iRep < 6; ++$iRep)
+	{
+		my @af1 = @af0;
+		for (my $i = 0; $i < $n + 2; ++$i)
+		{
+			my $g0;
+			if ($iVerb)
+			{
+				printf ("iRep %u, i %2u, n %2u.\n{\n", $iRep, $i, $n);
+				my $g0 = DestroyGuard->CreateObject (sub { printf ("}\n\n"); });
+				
+				printf ("af1 (%s).\n", join (' ', @af1));
+			}
+			
+			use List::Util qw (max);
+			&Azzert_num_eq (scalar @af1, max ($n - $i, 0));
+			
+			my $y =
+				sub
+				{
+					if    ($iRep == 0)
+					{
+						return &ShiftOr (\@af1, $sAlternate);
+					}
+					elsif ($iRep == 1)
+					{
+						return &PopOr   (\@af1, $sAlternate);
+					}
+					elsif ($iRep == 2)
+					{
+						return &ShiftOrInvoke (\@af1, sub { return $sAlternate; });
+					}
+					elsif ($iRep == 3)
+					{
+						return &PopOrInvoke   (\@af1, sub { return $sAlternate; });
+					}
+					elsif ($iRep == 4 || $iRep == 5)
+					{
+						my $sMsgError = sprintf ('Failure at %u !', $i);
+						
+						my $yy = eval
+						{
+							return
+								$iRep == 4 ?
+									&ShiftOrAzzert (\@af1, $sMsgError)
+									:
+									&PopOrAzzert   (\@af1, $sMsgError);
+						};
+						
+						if ($i < $n)
+						{
+							&Azzert_str_eq ($@, '');
+							return $yy;
+						}
+						else
+						{
+							&Azzert_str_ne ($@, '');
+							&Azzert (index ($@, $sMsgError) >= 0);
+							return $sAlternate;
+						}
+					}
+					else
+					{
+						&Azzert ();
+					}
+				}->();
+			
+			if ($i < $n)
+			{
+				&Azzert_num_eq ($y, (! ($iRep % 2) ? $i : $n - 1 - $i) * $fFactor);
+			}
+			else
+			{
+				&Azzert_str_eq ($y, $sAlternate);
+			}
+		}
+	}
+	
+	for (my $iRep = 0; $iRep < 3; ++$iRep)
+	{
+		if ($iVerb) { printf ("af0     (%s).\n", join (' ', @af0)); }
+		my @afAlternate = (@af0, 1000 .. 1019);
+		
+		for (my $i = 0; $i < scalar @afAlternate; ++$i)
+		{
+			my @af1 = @af0;
+			my @afResult =
+				sub
+				{
+					if    ($iRep == 0)
+					{
+						return &ShiftNOr (\@af1, $i, \@afAlternate);
+					}
+					elsif ($iRep == 1)
+					{
+						return &ShiftNOrInvoke (\@af1, $i, sub { return \@afAlternate; });
+					}
+					elsif ($iRep == 2)
+					{
+						my $sMessage = sprintf ('Failure at %u !', $i);
+						my @yy = eval
+						{
+							return &ShiftNOrAzzert (\@af1, $i, $sMessage);
+						};
+						
+						if ($i <= scalar @af0)
+						{
+							&Azzert_str_eq ($@, '');
+							return @yy;
+						}
+						else
+						{
+							&Azzert_str_ne ($@, '');
+							&Azzert_num_ge (index ($@, $sMessage), 0);
+							return &ShiftNOr (\@af1, $i, \@afAlternate);
+						}
+					}
+					else
+					{
+						&Azzert ();
+					}
+				}->();
+			
+			if ($iVerb)
+			{
+				printf ("af1      (%s).\n", join (' ', @af1     ));
+				printf ("afResult (%s).\n", join (' ', @afResult));
+			}
+			
+			&Azzert_num_eq (scalar (@afResult), $i);
+			
+			for (my $k = 0; $k < scalar (@afResult); ++$k)
+			{
+				if ($iVerb >= 2) { printf ("k %2u.\n", $k); }
+				if ($k < scalar @af1)
+				{
+					&Azzert_num_eq ($afResult [$k], $af0         [$k]);
+				}
+				else
+				{
+					&Azzert_num_eq ($afResult [$k], $afAlternate [$k]);
+				}
+			}
+			
+			if ($iVerb) { printf ("\n"); }
+		}
+	}
+}
+
 sub CheckParams
 {
 	my $x = &ShiftOrAzzert (\@_); &Azzert ($x == 10);
 	my $y = &ShiftOrAzzert (\@_); &Azzert ($y == 20);
 	# [2024-08-08] TODO: Find a way to test this !!
 	#my $z = &ShiftOrAzzert (\@_);
+	# [2024-08-19] Here we go, using `eval` and `$@` !!
+	my $z;
+	{
+		&Azzert (! @_);
+		
+		#printf ("\$\@ %s.\n", "'${@}'");
+		eval
+		{
+			$z = &ShiftOrAzzert (\@_);
+		};
+		
+		#printf ("\$\@ %s.\n", "'${@}'");
+		
+		&Azzert (length $@);
+		&Azzert ($@ =~ m/\bShiftOrAzzert\b/);
+	}
+	
+	&Azzert (! defined ($z));
 }
 &CheckParams (10, 20);
 
