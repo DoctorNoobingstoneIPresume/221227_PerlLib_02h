@@ -140,12 +140,14 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 # [2024-08-15 :x:x]
 #   `&ArrayElement(Or|OrSub|OrAzzert)`:
 {
-	my @a = (0, 11, 22, 33, 44, 55, 66, 77, 88, 99);
+	my $fFactor = 11;
+	my @a = map { $fFactor * $_; } 0 .. 9;
 	
 	{
 		for (my $i = -1; $i <= scalar @a; ++$i)
 		{
-			my $bGood = $i >= 0 && $i < scalar @a;
+			my $iAdjusted = $i >= 0 ? $i : scalar @a + $i;
+			my $bGood = $iAdjusted >= 0 && $iAdjusted < scalar @a;
 			
 			{
 				my $y = &ArrayElementOr (\@a, $i, $sAlternate);
@@ -187,7 +189,7 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 				else
 				{
 					&Azzert_str_ne ($@, '');
-					&Azzert ($@ =~ m/${sMessage}/);
+					&Azzert_num_ge (index ($@, $sMessage), 0);
 				}
 			}
 		}
@@ -199,7 +201,8 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 		
 		for (my $i = -1; $i <= scalar @a; ++$i)
 		{
-			my $bGood = $i >= 0 && $i < scalar @a;
+			my $iAdjusted = $i >= 0 ? $i : scalar @a + $i;
+			my $bGood = $iAdjusted >= 0 && $iAdjusted < scalar @a;
 			
 			my $j = &ArrayElementOr (\@a, $i, -927);
 			my ($ks, $ds) = ("key_${j}", "data_${j}");
@@ -244,7 +247,7 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 				else
 				{
 					&Azzert_str_ne ($@, '');
-					&Azzert ($@ =~ m/${sMessage}/);
+					&Azzert_num_ge (index ($@, $sMessage), 0);
 				}
 			}
 			
@@ -264,7 +267,7 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 				else
 				{
 					&Azzert_str_ne ($@, '');
-					&Azzert ($@ =~ m/${sMessage}/);
+					&Azzert_num_ge (index ($@, $sMessage), 0);
 				}
 			}
 		}

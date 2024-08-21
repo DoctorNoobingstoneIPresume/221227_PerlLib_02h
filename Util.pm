@@ -21,8 +21,10 @@ our @EXPORT = qw
 	
 	IndentPrefix Indent IndentWithTitle ArrayToString HashMapKeysToString HashToString IndexOfStringInArray
 	SplitCommandLine
-	ArrayElementMust ArrayElementOr ArrayElementOrSub ArrayElementOrAzzert
-	HashElementMust  HashElementOr  HashElementOrSub  HashElementOrAzzert
+	
+	ArrayElement ArrayElementOr ArrayElementOrInvoke ArrayElementOrAzzert ArrayElementMust ArrayElementOrSub
+	HashElement  HashElementOr  HashElementOrInvoke  HashElementOrAzzert  HashElementMust  HashElementOrSub
+	
 	StringToNumber
 	IsHashOrObject
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty GetOrAlterSetObjectProperty GetOrDefAlterSetObjectProperty
@@ -625,36 +627,177 @@ sub SplitCommandLine
 	return @asRet;
 }
 
+sub ArrayElement
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $ki            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($ki));
+		&Azzert_num_eq ($ki, int $ki);
+	}
+	
+	return $ram->[$ki];
+}
+
+sub ArrayElementOr
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $ki            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($ki));
+		&Azzert_num_eq ($ki, int $ki);
+		if ($ki < 0) { $ki = scalar @$ram + $ki; }
+	}
+	my $mAlternate    =      shift;
+	
+	return
+		$ki >= 0 && $ki < scalar @$ram ?
+			$ram->[$ki]
+			:
+			$mAlternate;
+}
+
+sub ArrayElementOrInvoke
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $ki            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($ki));
+		&Azzert_num_eq ($ki, int $ki);
+		if ($ki < 0) { $ki = scalar @$ram + $ki; }
+	}
+	my $rfnAlternate  = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rfnAlternate eq 'CODE');
+	}
+	
+	return
+		$ki >= 0 && $ki < scalar @$ram ?
+			$ram->[$ki]
+			:
+			$rfnAlternate->($ram, $ki, @_);
+}
+
+sub ArrayElementOrAzzert
+{
+	my $ram           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ram eq 'ARRAY');
+	}
+	my $ki            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (&LooksLikeNumber ($ki));
+		&Azzert_num_eq ($ki, int $ki);
+		if ($ki < 0) { $ki = scalar @$ram + $ki; }
+	}
+	my $sMsgAlternate =      shift;
+	{
+		&Azzert (! defined $sMsgAlternate || ref $sMsgAlternate eq '');
+	}
+	
+	return
+		$ki >= 0 && $ki < scalar @$ram ?
+			$ram->[$ki]
+			:
+			&Azzert (0, defined ($sMsgAlternate) ? $sMsgAlternate : sprintf ("ArrayElementOrAzzert (size %u, index %d) !", scalar @$ram, $ki));
+}
+
 sub ArrayElementMust
 {
 	# [2024-08-15 :x:x] TODO: `goto` ?!
 	return &ArrayElementOrAzzert (@_);
 }
 
-sub ArrayElementOr
-{
-	my $ra           = @_ ? shift : &Azzert (); &Azzert (ref $ra  eq 'ARRAY');
-	my $ki           = @_ ? shift : &Azzert (); &Azzert (&LooksLikeNumber ($ki));
-	my $mAlternative =      shift;
-	
-	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : $mAlternative;
-}
-
 sub ArrayElementOrSub
 {
-	my $ra           = @_ ? shift : &Azzert (); &Azzert (ref $ra  eq 'ARRAY');
-	my $ki           = @_ ? shift : &Azzert (); &Azzert (&LooksLikeNumber ($ki));
-	my $rfn          = @_ ? shift : &Azzert (); &Azzert (ref $rfn eq 'CODE');
-	
-	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : $rfn->($ra, $ki, @_);
+	# [2024-08-21 :*]
+	return &ArrayElementOrInvoke (@_);
 }
 
-sub ArrayElementOrAzzert
+sub HashElement
 {
-	my $ra           = @_ ? shift : &Azzert (); &Azzert (ref $ra  eq 'ARRAY');
-	my $ki           = @_ ? shift : &Azzert (); &Azzert (&LooksLikeNumber ($ki));
+	my $rhm           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rhm eq 'HASH');
+	}
+	my $ks            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ks eq '');
+	}
 	
-	return $ki >= 0 && $ki < scalar (@$ra) ? $ra->[$ki] : &Azzert (0, @_);
+	return $rhm->{$ks};
+}
+
+sub HashElementOr
+{
+	my $rhm           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rhm eq 'HASH');
+	}
+	my $ks            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ks eq '');
+	}
+	my $mAlternate    =      shift;
+	
+	return
+		exists $rhm->{$ks} ?
+			$rhm->{$ks}
+			:
+			$mAlternate;
+}
+
+sub HashElementOrInvoke
+{
+	my $rhm           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rhm eq 'HASH');
+	}
+	my $ks            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ks eq '');
+	}
+	my $rfnAlternate  = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rfnAlternate eq 'CODE');
+	}
+	
+	return
+		exists $rhm->{$ks} ?
+			$rhm->{$ks}
+			:
+			$rfnAlternate->($rhm, $ks, @_);
+}
+
+sub HashElementOrAzzert
+{
+	my $rhm           = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $rhm eq 'HASH');
+	}
+	my $ks            = @_ ? shift : &Azzert ();
+	{
+		&Azzert (ref $ks eq '');
+	}
+	my $sMsgAlternate =      shift;
+	{
+		&Azzert (! defined $sMsgAlternate || ref $sMsgAlternate eq '');
+	}
+	
+	return
+		exists $rhm->{$ks} ?
+			$rhm->{$ks}
+			:
+			&Azzert (0, defined $sMsgAlternate ? $sMsgAlternate : sprintf ('HashElementOrAzzert (..., %s) !', "'${ks}'"));
 }
 
 sub HashElementMust
@@ -663,30 +806,10 @@ sub HashElementMust
 	return &HashElementOrAzzert (@_);
 }
 
-sub HashElementOr
-{
-	my $rh           = @_ ? shift : &Azzert (); &Azzert (ref $rh  eq 'HASH');
-	my $ks           = @_ ? shift : &Azzert (); &Azzert (ref $ks  eq '');
-	my $mAlternative = @_ ? shift : undef;
-	
-	return exists $rh->{$ks} ? $rh->{$ks} : $mAlternative;
-}
-
 sub HashElementOrSub
 {
-	my $rh           = @_ ? shift : &Azzert (); &Azzert (ref $rh  eq 'HASH');
-	my $ks           = @_ ? shift : &Azzert (); &Azzert (ref $ks  eq '');
-	my $rfn          = @_ ? shift : &Azzert (); &Azzert (ref $rfn eq 'CODE');
-	
-	return exists $rh->{$ks} ? $rh->{$ks} : $rfn->($rh, $ks, @_);
-}
-
-sub HashElementOrAzzert
-{
-	my $rh           = @_ ? shift : &Azzert (); &Azzert (ref $rh  eq 'HASH');
-	my $ks           = @_ ? shift : &Azzert (); &Azzert (ref $ks  eq '');
-	
-	return exists $rh->{$ks} ? $rh->{$ks} : &Azzert (0, @_);
+	# [2024-08-21 :*]
+	return &HashElementOrInvoke (@_);
 }
 
 sub StringToNumber
