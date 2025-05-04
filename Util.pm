@@ -8,6 +8,7 @@ our @EXPORT = qw
 	LooksLikeNumber
 	printf_2 SeverityText printf_2s
 	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
+	Die Croak
 	Azzert
 	AzzertSub
 	Azzert_Compare_Impl
@@ -107,6 +108,18 @@ sub printf_2s
 	{ use IO::Handle; STDOUT->flush (); }
 	printf STDERR ('[%-*s] ', SEVERITY_TEXT_MAXLEN + 1, $sSeverity . ':');
 	printf STDERR (@_);
+}
+
+sub Die
+{
+	{ use IO::Handle; STDOUT->flush (); }
+	die (@_);
+}
+
+sub Croak
+{
+	{ use IO::Handle; STDOUT->flush (); }
+	{ use Carp; croak (@_); }
 }
 
 sub Azzert
