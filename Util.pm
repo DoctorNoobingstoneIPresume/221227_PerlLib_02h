@@ -155,7 +155,16 @@ sub Azzert_Compare_Impl
 	my $sFunctionName = @_ ? shift : (caller (1)) [3];
 	&Azzert (! @_);
 	
-	my $bResult = $rFunction->($x, $y);
+	my $bResult;
+	{
+		local ($a, $b) = ($x, $y);
+		# [2025-05-04] TODO:
+		#   Currently, we make the arguments available to the callee
+		#   both as the first two positional parameters and as the `$a` and `$b` named variables.
+		#   However, in the future, we are only going to the support the latter approach (named variables).
+		$bResult = $rFunction->($x, $y);
+	}
+	
 	if (! $bResult)
 	{
 		my $sMessage = sprintf
@@ -173,19 +182,19 @@ sub Azzert_Compare_Impl
 # [2024-07-29] `Azzert_(num|str|)_(eq|ne|lt|le|gt|ge)`:
 #   TODO: Could we "generate" the Perl code with less repetition ? :)
 
-sub Azzert_num_eq { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x == $y; }, @_); }
-sub Azzert_num_ne { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x != $y; }, @_); }
-sub Azzert_num_lt { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x <  $y; }, @_); }
-sub Azzert_num_le { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x <= $y; }, @_); }
-sub Azzert_num_gt { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x >  $y; }, @_); }
-sub Azzert_num_ge { return &Azzert_Compare_Impl (sub { my ($x, $y) = @_; return $x >= $y; }, @_); }
+sub Azzert_num_eq { return &Azzert_Compare_Impl (sub { return $a == $b; }, @_); }
+sub Azzert_num_ne { return &Azzert_Compare_Impl (sub { return $a != $b; }, @_); }
+sub Azzert_num_lt { return &Azzert_Compare_Impl (sub { return $a <  $b; }, @_); }
+sub Azzert_num_le { return &Azzert_Compare_Impl (sub { return $a <= $b; }, @_); }
+sub Azzert_num_gt { return &Azzert_Compare_Impl (sub { return $a >  $b; }, @_); }
+sub Azzert_num_ge { return &Azzert_Compare_Impl (sub { return $a >= $b; }, @_); }
 
-sub Azzert_str_eq { return &Azzert_Compare_Impl (sub { return $_ [0] eq $_ [1]; }, @_); }
-sub Azzert_str_ne { return &Azzert_Compare_Impl (sub { return $_ [0] ne $_ [1]; }, @_); }
-sub Azzert_str_lt { return &Azzert_Compare_Impl (sub { return $_ [0] lt $_ [1]; }, @_); }
-sub Azzert_str_le { return &Azzert_Compare_Impl (sub { return $_ [0] le $_ [1]; }. @_); }
-sub Azzert_str_gt { return &Azzert_Compare_Impl (sub { return $_ [0] gt $_ [1]; }, @_); }
-sub Azzert_str_ge { return &Azzert_Compare_Impl (sub { return $_ [0] ge $_ [1]; }, @_); }
+sub Azzert_str_eq { return &Azzert_Compare_Impl (sub { return $a eq $b; }, @_); }
+sub Azzert_str_ne { return &Azzert_Compare_Impl (sub { return $a ne $b; }, @_); }
+sub Azzert_str_lt { return &Azzert_Compare_Impl (sub { return $a lt $b; }, @_); }
+sub Azzert_str_le { return &Azzert_Compare_Impl (sub { return $a le $b; }. @_); }
+sub Azzert_str_gt { return &Azzert_Compare_Impl (sub { return $a gt $b; }, @_); }
+sub Azzert_str_ge { return &Azzert_Compare_Impl (sub { return $a ge $b; }, @_); }
 
 sub Azzert_eq     { return &Azzert_str_eq (@_); }
 sub Azzert_ne     { return &Azzert_str_ne (@_); }
