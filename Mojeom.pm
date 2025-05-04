@@ -41,6 +41,7 @@ sub AlterNuance
 			use Scalar::Util qw (looks_like_number);
 			my $ref_value = shift;
 			if (! looks_like_number ($$ref_value)) { return 0; }
+			&Azzert ($ref_value == $Util::rvalue);
 			if ($$ref_value < 0) { $$ref_value = 0; }
 			if ($$ref_value > 1) { $$ref_value = 1; }
 			return 1;

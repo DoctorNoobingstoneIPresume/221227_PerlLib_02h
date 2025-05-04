@@ -914,6 +914,8 @@ sub GetOrSetObjectProperty
 	else    { return $self->{$sProperty}; }
 }
 
+our $value;
+
 sub GetOrCheckSetObjectProperty
 {
 	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
@@ -922,15 +924,33 @@ sub GetOrCheckSetObjectProperty
 	
 	if (@_)
 	{
-		my $value = shift;
+		my $xValue = shift;
 		
-		my $bResult = defined $rfnCheck ? $rfnCheck->($value, @_) : 1;
-		# [2024-07-26] TODO:
-		#   Should we warn or silently reject or loudly reject ?!
-		#   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
-		#&Azzert ($bResult);
+		# [2025-05-04]
+		#   We make the argument available via the `$value` named variable.
+		#   Currently, we also keep the old way of passing the argument as the first positional argument
+		#   (in order to support existing code).
+		#   Initially, we thought that, in the future, we might switch to only supporting the `$value` named variable.
+		#   However, after having gained some understanding of the limitations of `local`,
+		#   we now think that we might always keep the old approach and actually deprecate-or-remove the new approach.
 		#
-		if ($bResult) { $self->{$sProperty} = $value; }
+		#my $bResult = defined $rfnCheck ? $rfnCheck->($value, @_) : 1;
+		## [2024-07-26] TODO:
+		##   Should we warn or silently reject or loudly reject ?!
+		##   Currently, we let the Client decide, e.g. by writing `if (! ...) { return 0; } return 1;` or `&Azzert (...); return 1;`.
+		##&Azzert ($bResult);
+		##
+		#
+		my $bResult = 1;
+		{
+			if (defined ($rfnCheck))
+			{
+				local $value = $xValue;
+				$bResult = $rfnCheck->($xValue, @_);
+			}
+		}
+		
+		if ($bResult) { $self->{$sProperty} = $xValue; }
 		return $self;
 	}
 	else
@@ -938,6 +958,8 @@ sub GetOrCheckSetObjectProperty
 		return $self->{$sProperty};
 	}
 }
+
+our $rvalue;
 
 sub GetOrAlterSetObjectProperty
 {
@@ -947,9 +969,17 @@ sub GetOrAlterSetObjectProperty
 	
 	if (@_)
 	{
-		my $value = shift;
-		my $bResult = defined $rfnAlter ? $rfnAlter->(\$value, @_) : 1;
-		if ($bResult) { $self->{$sProperty} = $value; }
+		my $xValue = shift;
+		my $bResult = 1;
+		{
+			# [2025-05-04] Please kindly see today's notes for `GetOrCheckSetObjectProperty`.
+			if (defined ($rfnAlter))
+			{
+				local $rvalue = \$xValue;
+				$bResult = $rfnAlter->(\$xValue, @_);
+			}
+		}
+		if ($bResult) { $self->{$sProperty} = $xValue; }
 		return $self;
 	}
 	else
@@ -967,9 +997,16 @@ sub GetOrDefAlterSetObjectProperty
 	
 	if (@_)
 	{
-		my $value = shift; if (! defined $value) { $value = $xDefValue; }
-		my $bResult = defined $rfnAlter ? $rfnAlter->(\$value, @_) : 1;
-		if ($bResult) { $self->{$sProperty} = $value; }
+		my $xValue = shift; if (! defined $xValue) { $xValue = $xDefValue; }
+		my $bResult = 1;
+		{
+			if (defined ($rfnAlter))
+			{
+				local $rvalue = \$xValue;
+				$bResult = $rfnAlter->(\$xValue, @_);
+			}
+		}
+		if ($bResult) { $self->{$sProperty} = $xValue; }
 		return $self;
 	}
 	else
