@@ -952,7 +952,7 @@ sub GetOrAlterSetObjectProperty
 sub GetOrDefAlterSetObjectProperty
 {
 	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
-	my $xDefValue = @_ ? shift : &Azzert (); &Azzert (ref $xDefValue eq '');
+	my $xDefValue = @_ ? shift : &Azzert ();
 	my $rfnAlter  = @_ ? shift : &Azzert (); if (defined $rfnAlter) { &Azzert (ref $rfnAlter eq 'CODE'); }
 	my $self      = @_ ? shift : &Azzert (); &Azzert (&IsHashOrObject ($self));
 	
