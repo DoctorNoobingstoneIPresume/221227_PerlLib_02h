@@ -92,9 +92,9 @@ use constant SEVERITY_TEXT_MAXLEN => 7;
 
 sub SeverityText
 {
-	my $iSeverity = @_ ? shift : Azzert ();
+	my $iSeverity = @_ ? shift : &Azzert ();
 	{
-		Azzert ($iSeverity >= 0 && $iSeverity < SEVERITY_LIMIT);
+		&Azzert ($iSeverity >= 0 && $iSeverity < SEVERITY_LIMIT);
 	}
 	
 	return (SEVERITY_TEXT) [$iSeverity];
@@ -102,7 +102,7 @@ sub SeverityText
 
 sub printf_2s
 {
-	my $iSeverity = @_ ? shift : Azzert ();
+	my $iSeverity = @_ ? shift : &Azzert ();
 	my $sSeverity = SeverityText ($iSeverity);
 	
 	{ use IO::Handle; STDOUT->flush (); }
@@ -165,7 +165,7 @@ sub Azzert_Compare_Impl
 			"'${sFunctionName}'", "'${x}'", "'${y}'", defined ($sMessage) ? " ${sMessage}" : ''
 		);
 		
-		Azzert (0, $sMessage);
+		&Azzert (0, $sMessage);
 	}
 	
 	return $bResult;
@@ -424,7 +424,7 @@ sub IndentPrefix
 
 sub Indent
 {
-	my $sx          = @_ ? shift : Azzert ();
+	my $sx          = @_ ? shift : &Azzert ();
 	my $n           = @_ ? shift : 1;
 	my $bChompLines = @_ ? shift : 1;
 	
@@ -440,7 +440,7 @@ sub Indent
 		for (my $ic = 0; $ic <= $nc; ++$ic)
 		{
 			if ($bAnything)
-				{ Azzert (! length ($sBuffered)); }
+				{ &Azzert (! length ($sBuffered)); }
 			
 			my $c   = $ic < $nc ? substr ($sx, $ic, 1) : '';
 			my $cod = $ic < $nc ? ord ($c)             : 0 ;
@@ -487,7 +487,7 @@ sub Indent
 
 sub IndentWithTitle
 {
-	my $sx          = @_ ? shift : Azzert ();
+	my $sx          = @_ ? shift : &Azzert ();
 	my $sTitle      = @_ ? shift : 'Untitled';
 	my $n           = @_ ? shift : 1;
 	my $bChompLines = @_ ? shift : 1;
@@ -497,7 +497,7 @@ sub IndentWithTitle
 
 sub ArrayToString
 {
-	my $ras = @_ ? shift : Azzert ();
+	my $ras = @_ ? shift : &Azzert ();
 		{ Azzert (ref $ras eq 'ARRAY'); }
 	
 	my $sRet = '';
@@ -513,8 +513,8 @@ sub ArrayToString
 
 sub HashMapKeysToString
 {
-	my $rhks = @_ ? shift : Azzert ();
-		{ Azzert (ref $rhks eq 'HASH'); }
+	my $rhks = @_ ? shift : &Azzert ();
+		{ &Azzert (ref $rhks eq 'HASH'); }
 	
 	my $sRet = '';
 	{
@@ -529,10 +529,10 @@ sub HashMapKeysToString
 
 sub HashToString
 {
-	my $rh = @_ ? shift : Azzert ();
-		{ Azzert (ref $rh eq 'HASH'); }
+	my $rh = @_ ? shift : &Azzert ();
+		{ &Azzert (ref $rh eq 'HASH'); }
 	my $ccKey = @_ ? shift : 0;
-		{ Azzert (ref $ccKey eq ''); }
+		{ &Azzert (ref $ccKey eq ''); }
 	
 	my $sRet = '';
 	{
@@ -547,9 +547,9 @@ sub HashToString
 
 sub IndexOfStringInArray
 {
-	my $rasHaystack = @_ ? shift : Azzert ();
-		{ Azzert (ref $rasHaystack eq 'ARRAY'); }
-	my $sNeedle     = @_ ? shift : Azzert ();
+	my $rasHaystack = @_ ? shift : &Azzert ();
+		{ &Azzert (ref $rasHaystack eq 'ARRAY'); }
+	my $sNeedle     = @_ ? shift : &Azzert ();
 	
 	my $i = 0;
 	foreach my $sHaystack (@$rasHaystack)
@@ -565,7 +565,7 @@ sub IndexOfStringInArray
 
 sub SplitCommandLine
 {
-	my $s0 = @_ ? shift : Azzert ();
+	my $s0 = @_ ? shift : &Azzert ();
 	
 	my @asRet = ();
 	{
@@ -592,7 +592,7 @@ sub SplitCommandLine
 			}
 			elsif ($iState == 10)
 			{
-				Azzert (length ($sArg));
+				&Azzert (length ($sArg));
 				
 				if (! $ord0)
 					{ push (@asRet, $sArg); $sArg = ''; last; }
@@ -634,7 +634,7 @@ sub SplitCommandLine
 			}
 			else
 			{
-				Azzert ();
+				&Azzert ();
 			}
 		}
 	}
@@ -829,7 +829,7 @@ sub HashElementOrSub
 
 sub StringToNumber
 {
-	my $s0    = @_ ? shift : Azzert ();
+	my $s0    = @_ ? shift : &Azzert ();
 	my $iBase = @_ ? shift : 10;
 	my $iSign = 1;
 	{
@@ -899,8 +899,8 @@ sub IsHashOrObject
 
 sub GetOrSetObjectProperty
 {
-	my $sProperty = @_ ? shift : Azzert (); &Azzert (ref $sProperty eq '');
-	my $self      = @_ ? shift : Azzert (); &Azzert (&IsHashOrObject ($self));
+	my $sProperty = @_ ? shift : &Azzert (); &Azzert (ref $sProperty eq '');
+	my $self      = @_ ? shift : &Azzert (); &Azzert (&IsHashOrObject ($self));
 	
 	if (@_) { my $value = shift; $self->{$sProperty} = $value; return $self; }
 	else    { return $self->{$sProperty}; }
@@ -973,7 +973,7 @@ sub GetOrDefAlterSetObjectProperty
 # https://stackoverflow.com/questions/33442240/perl-printf-to-use-commas-as-thousands-separator
 sub PrettyIntegral
 {
-	my $x             = @_ ? shift : Azzert ();
+	my $x             = @_ ? shift : &Azzert ();
 	my $Width_nDigits = @_ ? shift : 0;
 	
 	while ($x =~ s#(\d+)(\d{3})#$1,$2#g) {}
@@ -987,7 +987,7 @@ sub PrettyIntegral
 
 sub QuoteArg
 {
-	my $sArg = @_ ? shift : Azzert ();
+	my $sArg = @_ ? shift : &Azzert ();
 	
 	if ($sArg =~ m#'#)
 	{
@@ -1008,7 +1008,7 @@ sub QuoteArg
 
 sub QuoteArgs
 {
-	my $rasArgs = @_ ? shift : Azzert (); { Azzert (ref $rasArgs eq 'ARRAY'); }
+	my $rasArgs = @_ ? shift : &Azzert (); { Azzert (ref $rasArgs eq 'ARRAY'); }
 	return join (' ', map { &QuoteArg ($_); } @$rasArgs);
 }
 
