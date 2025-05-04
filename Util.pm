@@ -167,6 +167,8 @@ sub Azzert_Compare_Impl
 		
 		Azzert (0, $sMessage);
 	}
+	
+	return $bResult;
 }
 
 # [2024-07-29] `Azzert_(num|str|)_(eq|ne|lt|le|gt|ge)`:
