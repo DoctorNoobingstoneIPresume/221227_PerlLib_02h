@@ -131,11 +131,17 @@ sub Warn
 sub Azzert
 {
 	my $bCondition = shift;
-	my $sMessage   = shift;
-		{ if (! defined ($sMessage)) { $sMessage = 'No message.'; } }
 	
 	if (! $bCondition)
 	{
+		my $sMessage = shift;
+		{
+			if (! defined ($sMessage))
+			{
+				$sMessage = 'No message.';
+			}
+		}
+		
 		&Croak ("Error: Azzertion has failed. ${sMessage}");
 	}
 	
