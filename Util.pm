@@ -8,7 +8,7 @@ our @EXPORT = qw
 	LooksLikeNumber
 	printf_2 SeverityText printf_2s
 	EMERG PANIC ALERT CRIT ERR ERROR WARNING WARN NOTICE INFO DEBUG SEVERITY_LEVEL
-	Die Croak
+	Die Croak Warn
 	Azzert
 	AzzertSub
 	Azzert_Compare_Impl
@@ -120,6 +120,12 @@ sub Croak
 {
 	{ use IO::Handle; STDOUT->flush (); }
 	{ use Carp; croak (@_); }
+}
+
+sub Warn
+{
+	{ use IO::Handle; STDOUT->flush (); }
+	warn (@_);
 }
 
 sub Azzert
