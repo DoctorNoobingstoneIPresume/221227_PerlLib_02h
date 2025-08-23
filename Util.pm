@@ -154,7 +154,7 @@ sub AzzertSub
 	my $sMessage =      shift;
 	
 	my $bResult  = $rfn->(@_);
-	&Azzert ($bResult, $sMessage);
+	return &Azzert ($bResult, $sMessage);
 }
 
 sub Azzert_Compare_Impl
