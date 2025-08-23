@@ -34,7 +34,7 @@ sub DESTROY
 	if (defined ($rfn))
 	{
 		&Azzert_str_eq (ref $rfn, 'CODE');
-		$rfn->();
+		$rfn->($self, @_);
 	}
 }
 
