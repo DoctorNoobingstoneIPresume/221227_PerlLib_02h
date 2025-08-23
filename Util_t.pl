@@ -7,7 +7,7 @@ use strict; use warnings;
 # [2024-07-27] TODO: Somehow test `printf_2s?`.
 if (0)
 {
-	printf_2s (Util->ERR, "Bau (%s) !\n", 'Hello, World !');
+	&printf_2s (Util->ERR, "Bau (%s) !\n", 'Hello, World !');
 }
 
 {
@@ -50,24 +50,24 @@ if (0)
 			}
 			
 			#printf ("sx:\n{\n%s}\n\n", $sx);
-			my $sz = Indent ($sx, 1, $bChompLines);
+			my $sz = &Indent ($sx, 1, $bChompLines);
 			
 			# [2023-01-16]
-			#Azzert ($sz eq $sy);
+			#&Azzert ($sz eq $sy);
 			if ($sz ne $sy)
 			{
 				printf ("\$bChompLines %u, \$n %u. \$sz ne \$sy.\n", $bChompLines, $n);
 				printf ("\$sx (not indented) with no newline:\n{\n%s}\n\n", $sx);
 				printf ("\$sy (not indented) with no newline:\n{\n%s}\n\n", $sy);
 				printf ("\$sz (not indented) with no newline:\n{\n%s}\n\n", $sz);
-				Azzert (0);
+				&Azzert (0);
 			}
 		}
 	}
 }
 
 {
-	Azzert (ArrayToString ([10, 20, 'xxx']) eq "10\n20\nxxx\n");
+	&Azzert (&ArrayToString ([10, 20, 'xxx']) eq "10\n20\nxxx\n");
 }
 
 {
@@ -94,44 +94,44 @@ if (0)
 	#{
 	#	printf ("%s\n", $ks);
 	#}
-	#printf ("[%s]\n", HashMapKeysToString ($rh));
-	#Azzert (HashMapKeysToString ({0=>'zero', 1=>'one', 2=>'two', 3=>'three', 4=>'four'}) eq "0\n1\n2\n3\n4\n");
-	#printf ("%s\n\n", HashMapKeysToString ($rh));
+	#printf ("[%s]\n", &HashMapKeysToString ($rh));
+	#&Azzert (&HashMapKeysToString ({0=>'zero', 1=>'one', 2=>'two', 3=>'three', 4=>'four'}) eq "0\n1\n2\n3\n4\n");
+	#printf ("%s\n\n", &HashMapKeysToString ($rh));
 	#printf ("%s\n\n", $sExpected);
-	Azzert (HashMapKeysToString ($rh) eq $sExpected);
+	&Azzert (&HashMapKeysToString ($rh) eq $sExpected);
 }
 
 {
 	my %h = (0 => '000', 'aaa' => 'AAA');
-	#printf ("%s\n", HashToString (\%h));
-	Azzert_eq (HashToString (\%h), "'0' -> '000'\n" . "'aaa' -> 'AAA'\n");
+	#printf ("%s\n", &HashToString (\%h));
+	&Azzert_eq (&HashToString (\%h), "'0' -> '000'\n" . "'aaa' -> 'AAA'\n");
 }
 
 {
 	my $ras = ['zero', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'];
-	Azzert (IndexOfStringInArray ($ras, 'zero') ==  0);
-	Azzert (IndexOfStringInArray ($ras, 'neuf') ==  9);
-	Azzert (IndexOfStringInArray ($ras, 'ten' ) == -1);
+	&Azzert (&IndexOfStringInArray ($ras, 'zero') ==  0);
+	&Azzert (&IndexOfStringInArray ($ras, 'neuf') ==  9);
+	&Azzert (&IndexOfStringInArray ($ras, 'ten' ) == -1);
 }
 
 {
 	my $s0 = "   -g   -std=\"c++17\"  -W'all'   ";
-	my @as1 = SplitCommandLine ($s0);
-	#printf ("%s\n", ArrayToString (\@as1));
+	my @as1 = &SplitCommandLine ($s0);
+	#printf ("%s\n", &ArrayToString (\@as1));
 	
 	my @as1_Expected = ('-g', '-std=c++17', '-Wall');
-	Azzert (scalar (@as1) == scalar (@as1_Expected));
+	&Azzert (scalar (@as1) == scalar (@as1_Expected));
 	for (my $i = 0; $i < scalar (@as1); ++$i)
 	{
-		Azzert ($as1 [$i] eq $as1_Expected [$i]);
+		&Azzert ($as1 [$i] eq $as1_Expected [$i]);
 	}
 }
 
 {
 	my %h = ('aaa' => 0x61, 'bbb' => 0x62);
-	Azzert (           HashElementOr (\%h, 'aaa', 0xFF) == 0x61);
-	Azzert (           HashElementOr (\%h, 'ccc', 0xFF) == 0xFF);
-	Azzert (! defined (HashElementOr (\%h, 'zzz'      )));
+	&Azzert (           &HashElementOr (\%h, 'aaa', 0xFF) == 0x61);
+	&Azzert (           &HashElementOr (\%h, 'ccc', 0xFF) == 0xFF);
+	&Azzert (! defined (&HashElementOr (\%h, 'zzz'      )));
 }
 
 # [2024-08-15 :x:x] https://youtu.be/yokGq0yKdUc
@@ -275,7 +275,7 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 }
 
 {
-	#my $s1 = StringToNumber ('   xxx yyy   ');
+	#my $s1 = &StringToNumber ('   xxx yyy   ');
 	#printf ("\"%s\"\n", $s1);
 	
 	for (my $iAbsValue = 0; $iAbsValue < 1024; ++$iAbsValue)
@@ -297,10 +297,10 @@ my $sAlternate = 'T800 is re-routing to Alternate Power...';
 					{
 						my $s0 = sprintf ('%s%s%s' . $sFormat . '%s', @asArgs);
 						
-						my $iResult = StringToNumber ($s0);
+						my $iResult = &StringToNumber ($s0);
 						#printf ("iAbsValue %4u. iSign %+d. s0 %-16s. iResult %+16d...\n", $iAbsValue, $iSign, "'${s0}'", $iResult);
-						Azzert (defined ($iResult));
-						Azzert ($iResult == $iValue);
+						&Azzert (defined ($iResult));
+						&Azzert ($iResult == $iValue);
 					}
 				}
 			}
@@ -541,16 +541,16 @@ sub CheckParams
 
 sub QuoteArg_unittest
 {
-	Azzert_eq (QuoteArg ('aaa'), 'aaa');
-	Azzert_eq (QuoteArg ('aaa "bbb ccc"'), "'aaa \"bbb ccc\"'");
-	Azzert_eq (QuoteArg ("aaa 'bbb ccc' \"ddd eee\""), "\"aaa 'bbb ccc' \\\"ddd eee\\\"\"");
+	&Azzert_str_eq (&QuoteArg ('aaa'), 'aaa');
+	&Azzert_str_eq (&QuoteArg ('aaa "bbb ccc"'), "'aaa \"bbb ccc\"'");
+	&Azzert_str_eq (&QuoteArg ("aaa 'bbb ccc' \"ddd eee\""), "\"aaa 'bbb ccc' \\\"ddd eee\\\"\"");
 }
-QuoteArg_unittest ();
+&QuoteArg_unittest ();
 
 sub QuoteArgs_unittest
 {
-	Azzert_eq (QuoteArgs (['aaa bbb', 'ccc', '', 'ddd eee']), "'aaa bbb' ccc '' 'ddd eee'");
+	&Azzert_str_eq (&QuoteArgs (['aaa bbb', 'ccc', '', 'ddd eee']), "'aaa bbb' ccc '' 'ddd eee'");
 }
-QuoteArgs_unittest ();
+&QuoteArgs_unittest ();
 
 printf ("Unit_t.pl: Passed.\n");

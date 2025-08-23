@@ -47,13 +47,13 @@ use strict; use warnings;
 #   and then write (at each call site):
 #   `&Azzert (looks_like_number ($x));`,
 #   or write (at each call site) (if we want to reduce the scope):
-#   `&Azzert (sub { use Scalar::Util qw (looks_like_number); return looks_like_number ($x); }->());`.
+#   `&Azzert (sub { use Scalar::Util qw (looks_like_number); return &looks_like_number ($x); }->());`.
 #   
 #   Our new `LooksLikeNumber` is exported by default by this package,
 #   so we can just write (at the top of the file):
 #   `use Util;`
 #   and then write (at each call site):
-#   `&Azzert (LooksLikeNumber (&x));`.
+#   `&Azzert (&LooksLikeNumber (&x));`.
 #
 sub LooksLikeNumber
 {
@@ -103,7 +103,7 @@ sub SeverityText
 sub printf_2s
 {
 	my $iSeverity = @_ ? shift : &Azzert ();
-	my $sSeverity = SeverityText ($iSeverity);
+	my $sSeverity = &SeverityText ($iSeverity);
 	
 	{ use IO::Handle; STDOUT->flush (); }
 	printf STDERR ('[%-*s] ', SEVERITY_TEXT_MAXLEN + 1, $sSeverity . ':');
@@ -450,7 +450,7 @@ sub Indent
 	
 	my $sy = '';
 	{
-		my $sLinePrefix = IndentPrefix ($n);
+		my $sLinePrefix = &IndentPrefix ($n);
 		
 		my $nEmptyLines = 0;
 		my $sBuffered   = '';
@@ -913,7 +913,7 @@ sub IsHashOrObject
 	my $self = @_ ? shift : &Azzert ();
 	
 	# [2024-08-13 :|] Desperate attempts to avoid 'useless use' warnings from Perl.
-	eval { sub f { my $self = shift; return scalar keys %$self; } f ($self); };
+	eval { sub f { my $self = shift; return scalar keys %$self; } &f ($self); };
 	return $@ eq '';
 }
 
