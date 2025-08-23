@@ -182,7 +182,7 @@ sub Azzert_Compare_Impl
 		my $sMessageEx = sprintf
 		(
 			'%s has failed (%s vs %s) !%s',
-			"'${sFunctionName}'", "'${x}'", "'${y}'", defined ($sMessage) ? " ${sMessage}" : ''
+			"'${sFunctionName}'", "[[${x}]]", "[[${y}]]", defined ($sMessage) ? " ${sMessage}" : ''
 		);
 		
 		&Azzert (0, $sMessageEx);
@@ -1046,19 +1046,11 @@ sub QuoteArg
 {
 	my $sArg = @_ ? shift : &Azzert ();
 	
-	if ($sArg =~ m#'#)
+	if (! length ($sArg) || $sArg =~ m#[[:space:]\\\'\"\`\!\@\$\&\*\?(){}<>]#)
 	{
-		$sArg =~ s#\\#\\\\#g;
-		$sArg =~ s#"#\\"#g;
-		#$sArg =~ s#'#\\'#g;
-		$sArg = "\"${sArg}\"";
-	}
-	elsif (! length ($sArg) || $sArg =~ m#\s#)
-	{
+		$sArg =~ s#\'#\'\\\'\'#g;
 		$sArg = "'${sArg}'";
 	}
-	else
-	{}
 	
 	return $sArg;
 }

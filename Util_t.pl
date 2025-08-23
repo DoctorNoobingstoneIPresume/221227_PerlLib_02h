@@ -541,9 +541,33 @@ sub CheckParams
 
 sub QuoteArg_unittest
 {
-	&Azzert_str_eq (&QuoteArg ('aaa'), 'aaa');
-	&Azzert_str_eq (&QuoteArg ('aaa "bbb ccc"'), "'aaa \"bbb ccc\"'");
-	&Azzert_str_eq (&QuoteArg ("aaa 'bbb ccc' \"ddd eee\""), "\"aaa 'bbb ccc' \\\"ddd eee\\\"\"");
+	&Azzert_eq (&QuoteArg ('aaa'), 'aaa');
+	&Azzert_eq (&QuoteArg ('aaa "bbb ccc"'), "'aaa \"bbb ccc\"'");
+	&Azzert_eq (&QuoteArg ("aaa 'bbb ccc' \"ddd eee\""), "'aaa '\\''bbb ccc'\\'' \"ddd eee\"'");
+	
+	&Azzert_str_eq
+	(
+		&QuoteArgs
+		(
+		[
+			'xxx',
+			'yyy',
+			'',
+			'zzz zzz',
+			"zzz\tzzz",
+			'ttt',
+			"Apostrophe's",
+			'Wonder Woman !!',
+			'`Back-Ticks...`',
+			'Mysterio ??',
+			'"Lemme Quote You..."'
+		]
+		),
+		
+		"xxx yyy '' 'zzz zzz' 'zzz\tzzz' ttt " .
+		"'Apostrophe'\\''s'" .
+		" 'Wonder Woman !!' '\`Back-Ticks...\`' 'Mysterio ??' '\"Lemme Quote You...\"'"
+	);
 }
 &QuoteArg_unittest ();
 
