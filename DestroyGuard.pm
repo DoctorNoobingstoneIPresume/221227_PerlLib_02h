@@ -29,11 +29,12 @@ sub DESTROY
 	#use Util;
 	my $self = @_ ? shift : &Azzert ();
 	
-	my $ks = 'rfnOnDestroy';
-	if (defined ($self->{$ks}))
+	my $ks  = 'rfnOnDestroy';
+	my $rfn = $self->{$ks};
+	if (defined ($rfn))
 	{
-		&Azzert (ref ($self->{$ks}) eq 'CODE');
-		$self->{$ks}->();
+		&Azzert_str_eq (ref $rfn, 'CODE');
+		$rfn->();
 	}
 }
 
