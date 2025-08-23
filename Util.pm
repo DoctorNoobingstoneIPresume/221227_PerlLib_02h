@@ -179,13 +179,13 @@ sub Azzert_Compare_Impl
 	
 	if (! $bResult)
 	{
-		my $sMessage = sprintf
+		my $sMessageEx = sprintf
 		(
 			'%s has failed (%s vs %s) !%s',
 			"'${sFunctionName}'", "'${x}'", "'${y}'", defined ($sMessage) ? " ${sMessage}" : ''
 		);
 		
-		&Azzert (0, $sMessage);
+		&Azzert (0, $sMessageEx);
 	}
 	
 	return $bResult;
