@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e -o pipefail
+
+declare Go0_sScriptFolder="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+Main ()
+{
+	set -e -o pipefail
+	
+	(
+		cd "${Go0_sScriptFolder}/"
+		env time './Go' 2>&1 | tee '_go' | tee -a '_go_a'
+	)
+}
+
+Main "$@"
