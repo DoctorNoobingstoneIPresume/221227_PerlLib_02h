@@ -1046,7 +1046,7 @@ sub QuoteArg
 {
 	my $sArg = @_ ? shift : &Azzert ();
 	
-	if (! length ($sArg) || $sArg =~ m#[[:space:]\\\'\"\`\!\@\$\&\*\?(){}<>]#)
+	if (! length ($sArg) || $sArg =~ m#[[:space:]\\\'\"\`\!\@\$\&\*\?;\|(){}<>]#)
 	{
 		$sArg =~ s#\'#\'\\\'\'#g;
 		$sArg = "'${sArg}'";
