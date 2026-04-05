@@ -30,7 +30,7 @@ our @EXPORT = qw
 	IsHashOrObject
 	GetOrSetObjectProperty GetOrCheckSetObjectProperty GetOrAlterSetObjectProperty GetOrDefAlterSetObjectProperty
 	PrettyIntegral
-	QuoteArg QuoteArgs
+	QuoteArg QuoteArgs ForceQuoteArg ForceQuoteArgs
 );
 
 use strict; use warnings;
@@ -1057,8 +1057,33 @@ sub QuoteArg
 
 sub QuoteArgs
 {
-	my $rasArgs = @_ ? shift : &Azzert (); { Azzert (ref $rasArgs eq 'ARRAY'); }
+	my $rasArgs = @_ ? shift : &Azzert (); { &Azzert_str_eq (ref $rasArgs, 'ARRAY'); }
 	return join (' ', map { &QuoteArg ($_); } @$rasArgs);
+}
+
+sub ForceQuoteArg
+{
+	my $bForce = @_ ? shift : &Azzert ();
+	my $sArg   = @_ ? shift : &Azzert ();
+	
+	if ($bForce)
+	{
+		$sArg =~ s#\'#\'\\\'\'#g;
+		$sArg = "'${sArg}'";
+	}
+	else
+	{
+		$sArg = &QuoteArg ($sArg);
+	}
+	
+	return $sArg;
+}
+
+sub ForceQuoteArgs
+{
+	my $bForce  = @_ ? shift : &Azzert ();
+	my $rasArgs = @_ ? shift : &Azzert (); { &Azzert_str_eq (ref $rasArgs, 'ARRAY'); }
+	return join (' ', map { &ForceQuoteArg ($bForce, $_); } @$rasArgs);
 }
 
 1;

@@ -568,6 +568,14 @@ sub QuoteArg_unittest
 		"'Apostrophe'\\''s'" .
 		" 'Wonder Woman !!' '\`Back-Ticks...\`' 'Mysterio ??' '\"Lemme Quote You...\"'"
 	);
+	
+	&Azzert_str_eq (&ForceQuoteArg (0, 'xxx'    ), 'xxx'      );
+	&Azzert_str_eq (&ForceQuoteArg (0, 'yyy zzz'), "'yyy zzz'");
+	&Azzert_str_eq (&ForceQuoteArg (1, 'xxx'    ), "'xxx'"    );
+	&Azzert_str_eq (&ForceQuoteArg (1, 'yyy zzz'), "'yyy zzz'");
+	
+	&Azzert_str_eq (&ForceQuoteArgs (0, ['xxx', 'yyy zzz']), "xxx 'yyy zzz'"  );
+	&Azzert_str_eq (&ForceQuoteArgs (1, ['xxx', 'yyy zzz']), "'xxx' 'yyy zzz'");
 }
 &QuoteArg_unittest ();
 
