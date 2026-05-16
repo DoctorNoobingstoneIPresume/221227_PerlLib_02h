@@ -597,9 +597,9 @@ sub SplitCommandLine
 			my $c0   = $ic0 < $cc0 ? substr ($s0, $ic0, 1) : '';
 			my $ord0 = $ic0 < $cc0 ? ord ($c0)             : 0;
 			
-			if (! $iState)
+			if    (! $iState)
 			{
-				if (! $ord0)
+				if    (! $ord0)
 					{ last; }
 				elsif ($ord0 <= 0x20)
 					{ next; }
@@ -614,7 +614,7 @@ sub SplitCommandLine
 			{
 				&Azzert (length ($sArg));
 				
-				if (! $ord0)
+				if    (! $ord0)
 					{ push (@asRet, $sArg); $sArg = ''; last; }
 				elsif ($ord0 <= 0x20)
 					{ push (@asRet, $sArg); $sArg = ''; $iState = 0; }
@@ -627,7 +627,7 @@ sub SplitCommandLine
 			}
 			elsif ($iState == 20)
 			{
-				if (! $ord0)
+				if    (! $ord0)
 					{ push (@asRet, $sArg); $sArg = ''; last; }
 				elsif ($c0 eq "\\")
 					{ $iState = 21; }
@@ -638,14 +638,14 @@ sub SplitCommandLine
 			}
 			elsif ($iState == 21)
 			{
-				if (! $ord0)
+				if    (! $ord0)
 					{ push (@asRet, $sArg); $sArg = ''; last; }
 				else
 					{ $sArg .= $c0; $iState = 20; }
 			}
 			elsif ($iState == 30)
 			{
-				if (! $ord0)
+				if    (! $ord0)
 					{ push (@asRet, $sArg); $sArg = ''; last; }
 				elsif ($c0 eq '\'')
 					{ $iState = 10; }
