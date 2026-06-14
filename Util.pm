@@ -64,7 +64,9 @@ sub LooksLikeNumber
 sub printf_2
 {
 	{ use IO::Handle; STDOUT->flush (); }
-	return printf STDERR (@_);
+	my $mRet = printf STDERR (@_);
+	{ use IO::Handle; STDERR->flush (); }
+	return $mRet;
 }
 
 # [2024-07-25] https://en.wikipedia.org/wiki/Syslog
