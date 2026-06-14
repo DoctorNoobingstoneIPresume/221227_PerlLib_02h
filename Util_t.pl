@@ -116,7 +116,7 @@ if (0)
 
 {
 	my $s0 = "   -g   -std=\"c++17\"  -W'all'   ";
-	my @as1 = &SplitCommandLine ($s0);
+	my @as1 = @ {&SplitCommandLine ($s0)};
 	#printf ("%s\n", &ArrayToString (\@as1));
 	
 	my @as1_Expected = ('-g', '-std=c++17', '-Wall');

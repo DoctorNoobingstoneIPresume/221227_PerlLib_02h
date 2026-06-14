@@ -659,7 +659,7 @@ sub SplitCommandLine
 		}
 	}
 	
-	return @asRet;
+	return \@asRet;
 }
 
 sub ArrayElement
